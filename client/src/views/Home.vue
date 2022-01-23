@@ -9,12 +9,11 @@
       <n-button type="warning">Warning</n-button>
       <n-button type="error">Error</n-button>
     </n-space>
-    <HelloWorld msg="Welcome to Your Vue.js App" />
+    <HelloWorld />
   </div>
 </template>
 
 <script>
-// @ is an alias to /src
 import HelloWorld from "@/components/HelloWorld.vue";
 
 export default {

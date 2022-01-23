@@ -17,13 +17,7 @@ const UserSchema = mongoose.Schema(
         ref: 'User',
       },
     ],
-    publicPosts: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Post',
-      },
-    ],
-    privatePosts: [
+    posts: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Post',

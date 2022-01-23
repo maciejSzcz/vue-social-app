@@ -4,7 +4,7 @@ import axios from "axios";
 export default createStore({
   state: {
     status: "",
-    token: localStorage.getItem("token") || "",
+    token: sessionStorage.getItem("token") || "",
     user: {},
   },
   mutations: {
@@ -29,7 +29,7 @@ export default createStore({
       commit("AUTH_REQUEST");
 
       return axios({
-        url: "/login",
+        url: "/auth/login",
         data: user,
         method: "POST",
       })
@@ -37,34 +37,37 @@ export default createStore({
           const token = resp.data.token;
           const user = resp.data.user;
 
-          localStorage.setItem("token", token);
+          sessionStorage.setItem("token", token);
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
           commit("AUTH_SUCCESS", { token: token, user: user });
         })
         .catch(() => {
           commit("AUTH_FAILURE");
-          localStorage.removeItem("token");
+          sessionStorage.removeItem("token");
+          console.log("failure");
+          throw new Error();
         });
     },
     register({ commit }, user) {
       commit("AUTH_REQUEST");
-      return axios({ url: "/register", data: user, method: "POST" })
+      return axios({ url: "/auth/register", data: user, method: "POST" })
         .then((resp) => {
           const token = resp.data.token;
           const user = resp.data.user;
 
-          localStorage.setItem("token", token);
+          sessionStorage.setItem("token", token);
           axios.defaults.headers.common["Authorization"] = token;
           commit("AUTH_SUCCESS", { token: token, user: user });
         })
         .catch((err) => {
           commit("AUTH_ERROR", err);
-          localStorage.removeItem("token");
+          sessionStorage.removeItem("token");
+          throw new Error();
         });
     },
     logout({ commit }) {
       commit("LOGOUT");
-      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
       delete axios.defaults.headers.common["Authorization"];
     },
   },
@@ -72,5 +75,6 @@ export default createStore({
   getters: {
     isLoggedIn: (state) => !!state.token,
     authStatus: (state) => state.status,
+    userId: (state) => state.user?._id,
   },
 });

@@ -6,8 +6,9 @@ export default {
     const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
       expiresIn: 60 * 60,
     });
+    const user = await User.findOne({ _id: req.user._id }).populate('posts');
 
-    return res.send({ token });
+    return res.send({ token, user });
   },
 
   async register(req, res, next) {

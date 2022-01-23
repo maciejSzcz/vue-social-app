@@ -6,6 +6,8 @@ import https from 'https';
 import bodyParser from 'body-parser';
 import config from './config/config.js';
 import auth from './routes/auth.js';
+import users from './routes/users.js';
+import posts from './routes/posts.js';
 import passport from './config/passport.js';
 
 // Connect to database
@@ -39,6 +41,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 app.use('/api/auth', auth());
+app.use('/api/users', users());
+app.use('/api/posts', posts());
 
 server.listen(config.server.port, () => {
   console.log(`Server started on port ${config.server.port}`);

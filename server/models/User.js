@@ -17,6 +17,18 @@ const UserSchema = mongoose.Schema(
         ref: 'User',
       },
     ],
+    publicPosts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post',
+      },
+    ],
+    privatePosts: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Post',
+      },
+    ],
   },
   {
     timestamps: true,

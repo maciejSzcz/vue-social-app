@@ -3,6 +3,7 @@ dotenv.config({ path: '.env' });
 import express from 'express';
 import fs from 'fs';
 import https from 'https';
+import cors from 'cors';
 import bodyParser from 'body-parser';
 import config from './config/config.js';
 import auth from './routes/auth.js';
@@ -39,6 +40,7 @@ const server = https.createServer(
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cors());
 
 app.use('/api/auth', auth());
 app.use('/api/users', users());

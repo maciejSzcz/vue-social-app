@@ -9,6 +9,8 @@ import setPublicity from '../middlewares/setPublicity.js';
 export default () => {
   const api = Router();
 
+  api.get('/', catchAsync(postsController.findAllPublicPosts));
+
   api.post(
     '/:id/private',
     [jwtAuth, isSelf, setPublicity('privatePosts')],

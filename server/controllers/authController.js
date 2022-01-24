@@ -16,6 +16,18 @@ export default {
     const user = new User({ first_name, last_name, email });
     await User.register(user, password);
 
-    res.status(201).send({ message: 'User created successfully' });
+    const token = jwt.sign({ id: req.user._id }, process.env.JWT_SECRET, {
+      expiresIn: 60 * 60,
+    });
+    const registeredUser = await User.findOne({ _id: req.user._id }).populate(
+      'posts'
+    );
+
+    res.status(201).send({ token, user: registeredUser });
+  },
+
+  async getCurrentUser(req, res, next) {
+    const user = await User.findOne({ _id: req.user._id }).populate('posts');
+    return res.send({ data: user });
   },
 };

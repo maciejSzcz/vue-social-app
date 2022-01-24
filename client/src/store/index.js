@@ -1,5 +1,5 @@
-import { createStore } from "vuex";
 import axios from "axios";
+import { createStore } from "vuex";
 
 export default createStore({
   state: {
@@ -16,12 +16,19 @@ export default createStore({
       state.token = payload.token;
       state.user = payload.user;
     },
-    AUTH_ERROR(state) {
+    GET_USER_SUCCESS(state, payload) {
+      state.status = "success";
+      state.user = payload.user;
+    },
+    AUTH_FAILURE(state) {
       state.status = "error";
+      state.token = "";
+      state.user = {};
     },
     LOGOUT(state) {
       state.status = "";
       state.token = "";
+      state.user = {};
     },
   },
   actions: {
@@ -44,7 +51,6 @@ export default createStore({
         .catch(() => {
           commit("AUTH_FAILURE");
           sessionStorage.removeItem("token");
-          console.log("failure");
           throw new Error();
         });
     },
@@ -70,10 +76,29 @@ export default createStore({
       sessionStorage.removeItem("token");
       delete axios.defaults.headers.common["Authorization"];
     },
+    getUser({ commit }) {
+      commit("AUTH_REQUEST");
+
+      return axios({
+        url: "/auth/currentUser",
+        method: "GET",
+      })
+        .then((resp) => {
+          const user = resp.data.data;
+
+          commit("GET_USER_SUCCESS", { user: user });
+        })
+        .catch(() => {
+          commit("AUTH_FAILURE");
+          sessionStorage.removeItem("token");
+          delete axios.defaults.headers.common["Authorization"];
+        });
+    },
   },
   modules: {},
   getters: {
     isLoggedIn: (state) => !!state.token,
+    isUserPresent: (state) => !!state.user?._id,
     authStatus: (state) => state.status,
     userId: (state) => state.user?._id,
   },

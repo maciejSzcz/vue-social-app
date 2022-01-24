@@ -1,33 +1,32 @@
 <template>
-  <div>
-    <form class="login" @submit.prevent="login">
-      <n-space vertical>
-        <h1>Sign in</h1>
-        <n-form-item label="E-Mail">
-          <n-input
-            required
-            v-model:value="email"
-            type="email"
-            placeholder="E-mail"
-          />
-        </n-form-item>
-        <n-form-item label="Password">
-          <n-input
-            required
-            v-model:value="password"
-            type="password"
-            show-password-on="mousedown"
-            placeholder="Password"
-          />
-        </n-form-item>
-        <button type="submit">Login</button>
-      </n-space>
-    </form>
+  <div class="login-wrapper">
+    <n-card class="login-box" title="Log in">
+      <form class="login-form" @submit.prevent="login">
+        <n-space vertical>
+          <n-form-item label="E-Mail">
+            <n-input
+              required
+              v-model:value="email"
+              type="email"
+              placeholder="E-mail"
+            />
+          </n-form-item>
+          <n-form-item label="Password">
+            <n-input
+              required
+              v-model:value="password"
+              type="password"
+              show-password-on="mousedown"
+              placeholder="Password"
+            />
+          </n-form-item>
+          <n-button attr-type="submit" type="primary">Login</n-button>
+        </n-space>
+      </form>
+    </n-card>
   </div>
 </template>
 <script>
-import { mapGetters } from "vuex";
-
 export default {
   name: "Login",
   data() {
@@ -35,9 +34,6 @@ export default {
       email: "",
       password: "",
     };
-  },
-  computed: {
-    ...mapGetters(["authStatus"]),
   },
   methods: {
     login() {
@@ -52,3 +48,22 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.login-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.login-box {
+  width: 90%;
+}
+
+@media (min-width: 979px) {
+  .login-box {
+    width: 40%;
+  }
+}
+</style>

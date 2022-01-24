@@ -23,24 +23,46 @@ export default {
   },
 
   async findPostsForUser(req, res, next) {
-    console.log('is friends - ', res.locals.isFriends);
     if (res.locals.isFriends || req.user.id === req.params.id) {
-      const user = await User.findOne({ _id: req.params.id }).populate('posts');
+      /* const user = await User.findOne({ _id: req.params.id })
+        .populate('posts')
+        .select('posts')
+        .populate('createdBy'); */
 
-      if (!user) {
+      const posts = await Post.find({ createdBy: req.params.id }).populate(
+        'createdBy'
+      );
+
+      if (!posts) {
         return next();
       }
-      return res.status(200).send({ data: user });
+      return res.status(200).send({ data: posts });
     } else {
-      const user = await User.findOne({
-        _id: req.params.id,
-        posts: { $elemMatch: { publicity: 'publicPosts' } },
-      }).populate('posts');
+      /* const user = await User.findOne({ _id: req.params.id })
+        .populate({
+          path: 'posts',
+          match: { publicity: 'publicPosts' },
+        })
+        .select('posts')
+        .populate('createdBy'); */
 
-      if (!user) {
+      const posts = await Post.find({
+        createdBy: req.params.id,
+        publicity: 'publicPosts',
+      }).populate('createdBy');
+
+      if (!posts) {
         return next();
       }
-      return res.status(200).send({ data: user });
+      return res.status(200).send({ data: posts });
     }
+  },
+
+  async findAllPublicPosts(req, res, next) {
+    const posts = await Post.find({ publicity: 'publicPosts' }).populate(
+      'createdBy'
+    );
+
+    return res.status(200).send({ data: posts });
   },
 };

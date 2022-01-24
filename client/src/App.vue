@@ -3,7 +3,10 @@
     <n-message-provider>
       <n-notification-provider>
         <n-dialog-provider>
-          <router-view />
+          <n-space class="spinner" justify="center" v-if="loading">
+            <n-spin size="large" />
+          </n-space>
+          <router-view v-else />
         </n-dialog-provider>
       </n-notification-provider>
     </n-message-provider>
@@ -17,6 +20,7 @@ import {
   NNotificationProvider,
   NLoadingBarProvider,
 } from "naive-ui";
+import { mapGetters } from "vuex";
 
 export default {
   name: "App",
@@ -26,5 +30,27 @@ export default {
     NNotificationProvider,
     NLoadingBarProvider,
   },
+  computed: {
+    ...mapGetters(["isUserPresent", "isLoggedIn"]),
+  },
+  data() {
+    return {
+      loading: false,
+    };
+  },
+  mounted() {
+    if (this.isLoggedIn && !this.isUserPresent) {
+      this.loading = true;
+      this.$store.dispatch("getUser").then(() => {
+        this.loading = false;
+      });
+    }
+  },
 };
 </script>
+<style scoped>
+.spinner {
+  height: 100vh;
+  align-items: center;
+}
+</style>

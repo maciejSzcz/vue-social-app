@@ -1,0 +1,47 @@
+<template>
+  <n-card>
+    <n-space justify="space-between">
+      <n-space>
+        <router-link to="/">
+          <n-avatar class="avatar">MW</n-avatar>
+        </router-link>
+      </n-space>
+      <n-space>
+        <template v-if="!isLoggedIn">
+          <router-link to="Login">
+            <n-button>Register</n-button>
+          </router-link>
+          <router-link to="Login">
+            <n-button type="primary">Login</n-button>
+          </router-link>
+        </template>
+        <template v-else>
+          <n-button @click="logout">Logout</n-button>
+        </template>
+      </n-space>
+    </n-space>
+  </n-card>
+</template>
+<script>
+import { mapGetters } from "vuex";
+
+export default {
+  name: "Posts",
+  computed: {
+    ...mapGetters(["isLoggedIn"]),
+  },
+  methods: {
+    logout() {
+      this.$store.dispatch("logout").then(() => {
+        this.$router.push("/");
+      });
+    },
+  },
+};
+</script>
+<style scoped>
+.avatar {
+  color: black;
+  background-color: var(--n-color-target);
+}
+</style>

@@ -1,13 +1,19 @@
 <template>
-  <div class="posts-wrapper" v-if="posts">
+  <div class="posts-wrapper" v-if="posts?.length">
+    <PostForm v-if="isLoggedIn" @getPosts="getPosts" />
     <div class="post" v-for="post in posts" :key="post?._id">
       <n-card>
         <template #header v-if="post?.createdBy?._id">
-          <router-link
-            :to="{ name: 'User', params: { id: post?.createdBy?._id } }"
-          >
-            {{ post?.createdBy?.first_name }} {{ post?.createdBy?.last_name }}
-          </router-link>
+          <n-space>
+            <n-avatar class="avatar">
+              {{ getInitials(post?.createdBy) }}
+            </n-avatar>
+            <router-link
+              :to="{ name: 'User', params: { id: post?.createdBy?._id } }"
+            >
+              {{ post?.createdBy?.first_name }} {{ post?.createdBy?.last_name }}
+            </router-link>
+          </n-space>
         </template>
         <template #header v-else>
           {{ post?.createdBy?.first_name }} {{ post?.createdBy?.last_name }}
@@ -41,9 +47,14 @@
 import axios from "axios";
 import { mapGetters } from "vuex";
 import { useMessage } from "naive-ui";
+import PostForm from "@/components/PostForm";
+import getInitials from "@/utils/getInitials";
 
 export default {
   name: "Posts",
+  components: {
+    PostForm,
+  },
   data() {
     return {
       posts: null,
@@ -51,23 +62,25 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(["userId", "isUserPresent"]),
+    ...mapGetters(["isUserPresent", "isLoggedIn"]),
   },
   methods: {
     async getPosts() {
-      const message = useMessage();
       this.loading = true;
 
       return axios
-        .get(this.userId ? `posts/${this.userId}` : "/posts")
+        .get("/posts")
         .then((res) => {
           this.posts = res.data?.data;
           this.loading = false;
         })
         .catch(() => {
-          message.error("Error fetching posts", { duration: 5000 });
+          this.displayError("Error fetching posts");
           this.loading = false;
         });
+    },
+    getInitials(post) {
+      return getInitials(post);
     },
   },
   mounted() {
@@ -77,6 +90,16 @@ export default {
     isUserPresent() {
       this.getPosts();
     },
+  },
+  setup() {
+    const message = useMessage();
+    return {
+      displayError(err) {
+        message.error(err, {
+          duration: 5000,
+        });
+      },
+    };
   },
 };
 </script>

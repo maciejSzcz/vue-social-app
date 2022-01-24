@@ -54,8 +54,8 @@ export default {
   },
   methods: {
     async getUser() {
-      const message = useMessage();
       this.loading = true;
+
       return axios
         .get(`users/${this.id}`)
         .then((res) => {
@@ -63,13 +63,23 @@ export default {
           this.loading = false;
         })
         .catch(() => {
-          message.error("Error fetching user", { duration: 5000 });
+          this.displayError("Error fetching user");
           this.loading = false;
         });
     },
   },
   mounted() {
     this.getUser();
+  },
+  setup() {
+    const message = useMessage();
+    return {
+      displayError(err) {
+        message.error(err, {
+          duration: 5000,
+        });
+      },
+    };
   },
 };
 </script>

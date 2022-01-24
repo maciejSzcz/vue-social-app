@@ -8,7 +8,7 @@
       </n-space>
       <n-space>
         <template v-if="!isLoggedIn">
-          <router-link to="Login">
+          <router-link to="Register">
             <n-button>Register</n-button>
           </router-link>
           <router-link to="Login">
@@ -16,7 +16,10 @@
           </router-link>
         </template>
         <template v-else>
-          <n-button @click="logout">Logout</n-button>
+          <router-link :to="{ name: 'User', params: { id: user?._id } }">
+            <n-button>Profile</n-button>
+          </router-link>
+          <n-button type="primary" @click="logout">Logout</n-button>
         </template>
       </n-space>
     </n-space>
@@ -28,7 +31,7 @@ import { mapGetters } from "vuex";
 export default {
   name: "Posts",
   computed: {
-    ...mapGetters(["isLoggedIn"]),
+    ...mapGetters(["isLoggedIn", "user"]),
   },
   methods: {
     logout() {

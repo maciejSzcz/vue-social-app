@@ -62,7 +62,7 @@ export default createStore({
           const user = resp.data.user;
 
           sessionStorage.setItem("token", token);
-          axios.defaults.headers.common["Authorization"] = token;
+          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
           commit("AUTH_SUCCESS", { token: token, user: user });
         })
         .catch((err) => {
@@ -101,5 +101,6 @@ export default createStore({
     isUserPresent: (state) => !!state.user?._id,
     authStatus: (state) => state.status,
     userId: (state) => state.user?._id,
+    user: (state) => state.user,
   },
 });

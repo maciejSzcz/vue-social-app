@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { catchAsync } from '../middlewares/errors.js';
 import AuthController from '../controllers/authController.js';
 import passport from 'passport';
 import jwtAuth from '../middlewares/auth.js';
@@ -12,7 +13,7 @@ export default () => {
     AuthController.login
   );
 
-  api.post('/register', AuthController.register);
+  api.post('/register', catchAsync(AuthController.register));
 
   api.get('/currentUser', [jwtAuth], AuthController.getCurrentUser);
 

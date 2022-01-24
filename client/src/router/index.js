@@ -3,6 +3,7 @@ import Home from "@/views/Home.vue";
 import Login from "@/views/Login.vue";
 import Register from "@/views/Register.vue";
 import User from "@/views/User.vue";
+import Post from "@/components/Post.vue";
 import store from "@/store/index.js";
 
 const routes = [
@@ -25,6 +26,15 @@ const routes = [
     path: "/user/:id",
     name: "User",
     component: User,
+    props: true,
+    meta: {
+      requiresAuth: true,
+    },
+  },
+  {
+    path: "/post/:id",
+    name: "Post",
+    component: Post,
     props: true,
     meta: {
       requiresAuth: true,

@@ -1,7 +1,7 @@
 <template>
-  <div class="posts-wrapper" v-if="posts?.length">
-    <PostForm v-if="isLoggedIn" @getPosts="getPosts" />
-    <div class="post" v-for="post in posts" :key="post?._id">
+  <NavBar />
+  <div class="post-wrapper" v-if="post">
+    <div class="post">
       <n-card>
         <template #header v-if="post?.createdBy?._id">
           <n-space>
@@ -23,19 +23,12 @@
           v-html="post?.content"
           v-linkified:options="{ className: 'customLink' }"
         />
-        <n-space class="post-actions">
-          <router-link :to="{ name: 'Post', params: { id: post?._id } }">
-            <n-icon size="20">
-              <chatbox-outline />
-            </n-icon>
-          </router-link>
-        </n-space>
       </n-card>
     </div>
   </div>
-  <div class="posts-wrapper" v-else>
+  <div class="post-wrapper" v-else>
     <template v-if="loading">
-      <div class="post" v-for="i in 3" :key="i">
+      <div class="post">
         <n-card>
           <template #header>
             <n-skeleton text width="50%" />
@@ -45,10 +38,9 @@
       </div>
     </template>
     <template v-else>
-      <PostForm v-if="isLoggedIn" @getPosts="getPosts" />
       <div class="post empty">
         <n-card class="empty">
-          <n-empty description="No posts found" />
+          <n-empty description="No post found" />
         </n-card>
       </div>
     </template>
@@ -59,19 +51,20 @@
 import axios from "axios";
 import { mapGetters } from "vuex";
 import { useMessage } from "naive-ui";
-import PostForm from "@/components/PostForm";
+import NavBar from "@/components/NavBar.vue";
 import getInitials from "@/utils/getInitials";
-import { ChatboxOutline } from "@vicons/ionicons5";
 
 export default {
-  name: "Posts",
+  name: "Post",
   components: {
-    PostForm,
-    ChatboxOutline,
+    NavBar,
+  },
+  props: {
+    id: String,
   },
   data() {
     return {
-      posts: null,
+      post: null,
       loading: false,
     };
   },
@@ -79,31 +72,27 @@ export default {
     ...mapGetters(["isUserPresent", "isLoggedIn"]),
   },
   methods: {
-    async getPosts() {
+    async getPost() {
       this.loading = true;
-
+      console.log(this.post);
+      console.log(this.id);
       return axios
-        .get("/posts")
+        .get(`/posts/${this.id}`)
         .then((res) => {
-          this.posts = res.data?.data;
+          this.post = res.data?.data;
           this.loading = false;
         })
         .catch(() => {
-          this.displayError("Error fetching posts");
+          this.displayError("Error fetching post");
           this.loading = false;
         });
     },
-    getInitials(post) {
-      return getInitials(post);
+    getInitials(_post) {
+      return getInitials(_post);
     },
   },
   mounted() {
-    this.getPosts();
-  },
-  watch: {
-    isUserPresent() {
-      this.getPosts();
-    },
+    this.getPost();
   },
   setup() {
     const message = useMessage();
@@ -119,7 +108,7 @@ export default {
 </script>
 
 <style scoped>
-.posts-wrapper {
+.post-wrapper {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -141,9 +130,5 @@ a {
 
 .post-content >>> .customLink {
   color: #42b983;
-}
-
-.post-actions {
-  padding-top: 2rem;
 }
 </style>

@@ -30,9 +30,15 @@ export default () => {
   );
 
   api.get(
-    '/:id',
+    '/user/:id',
     [jwtAuth, isFriends],
     catchAsync(postsController.findPostsForUser)
+  );
+
+  api.get(
+    '/:id',
+    [jwtAuth, isFriends],
+    catchAsync(postsController.getPostById)
   );
 
   return api;

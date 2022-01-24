@@ -52,4 +52,12 @@ export default {
 
     return res.status(200).send({ data: posts });
   },
+
+  async getPostById(req, res, next) {
+    const post = await Post.findOne({ _id: req.params.id }).populate(
+      'createdBy'
+    );
+
+    return res.status(200).send({ data: post });
+  },
 };

@@ -10,6 +10,8 @@ import auth from './routes/auth.js';
 import users from './routes/users.js';
 import posts from './routes/posts.js';
 import passport from './config/passport.js';
+import { Server } from 'socket.io';
+import socketListener from './listeners/socketListener.js';
 
 // Connect to database
 import dbConfig from './config/database.js';
@@ -38,6 +40,8 @@ const server = https.createServer(
   app
 );
 
+const io = new Server(server);
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
@@ -49,3 +53,5 @@ app.use('/api/posts', posts());
 server.listen(config.server.port, () => {
   console.log(`Server started on port ${config.server.port}`);
 });
+
+socketListener(io);

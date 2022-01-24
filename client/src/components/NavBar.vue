@@ -16,6 +16,9 @@
           </router-link>
         </template>
         <template v-else>
+          <n-gradient-text :size="18" class="username" type="success">
+            {{ user?.first_name ?? "" }} {{ user?.last_name ?? "" }}
+          </n-gradient-text>
           <router-link :to="{ name: 'User', params: { id: user?._id } }">
             <n-button>Profile</n-button>
           </router-link>
@@ -46,5 +49,9 @@ export default {
 .avatar {
   color: black;
   background-color: var(--n-color-target);
+}
+
+.username {
+  padding: 0 2rem;
 }
 </style>

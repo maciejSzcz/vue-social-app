@@ -24,11 +24,6 @@ export default {
 
   async findPostsForUser(req, res, next) {
     if (res.locals.isFriends || req.user.id === req.params.id) {
-      /* const user = await User.findOne({ _id: req.params.id })
-        .populate('posts')
-        .select('posts')
-        .populate('createdBy'); */
-
       const posts = await Post.find({ createdBy: req.params.id }).populate(
         'createdBy'
       );
@@ -38,14 +33,6 @@ export default {
       }
       return res.status(200).send({ data: posts });
     } else {
-      /* const user = await User.findOne({ _id: req.params.id })
-        .populate({
-          path: 'posts',
-          match: { publicity: 'publicPosts' },
-        })
-        .select('posts')
-        .populate('createdBy'); */
-
       const posts = await Post.find({
         createdBy: req.params.id,
         publicity: 'publicPosts',
@@ -59,9 +46,9 @@ export default {
   },
 
   async findAllPublicPosts(req, res, next) {
-    const posts = await Post.find({ publicity: 'publicPosts' }).populate(
-      'createdBy'
-    );
+    const posts = await Post.find({
+      publicity: { $in: ['publicPosts', 'general'] },
+    }).populate('createdBy');
 
     return res.status(200).send({ data: posts });
   },

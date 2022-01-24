@@ -18,7 +18,11 @@
         <template #header v-else>
           {{ post?.createdBy?.first_name }} {{ post?.createdBy?.last_name }}
         </template>
-        <div v-html="post?.content" v-linkified />
+        <div
+          class="post-content"
+          v-html="post?.content"
+          v-linkified:options="{ className: 'customLink' }"
+        />
       </n-card>
     </div>
   </div>
@@ -34,6 +38,7 @@
       </div>
     </template>
     <template v-else>
+      <PostForm v-if="isLoggedIn" @getPosts="getPosts" />
       <div class="post empty">
         <n-card class="empty">
           <n-empty description="No posts found" />
@@ -122,6 +127,10 @@ export default {
 }
 
 a {
+  color: #42b983;
+}
+
+.post-content >>> .customLink {
   color: #42b983;
 }
 </style>

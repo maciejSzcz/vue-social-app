@@ -5,7 +5,7 @@
         <n-input
           v-model:value="postContent"
           placeholder="Your post"
-          maxlength="1000"
+          maxlength="2000"
           show-count
           type="textarea"
           size="small"
@@ -95,7 +95,7 @@ export default {
 </script>
 <style scoped>
 .post-wrapper {
-  min-width: 50%;
+  width: 50%;
   margin: 1rem 0;
 }
 

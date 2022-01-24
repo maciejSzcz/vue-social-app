@@ -4,17 +4,17 @@
     <div v-if="user" class="user">
       <n-card :title="user?.first_name + ' ' + user?.last_name">
         {{ user?.email }}
-        <n-card content-style="padding: 0;">
-          <n-tabs
-            type="line"
-            size="large"
-            :tabs-padding="20"
-            pane-style="padding: 20px;"
-          >
-            <n-tab-pane name="Public">Public</n-tab-pane>
-            <n-tab-pane name="Private">Private</n-tab-pane>
-          </n-tabs>
-        </n-card>
+      </n-card>
+      <n-card class="wall-tabs" content-style="padding: 0;">
+        <n-tabs
+          type="segment"
+          size="large"
+          :tabs-padding="20"
+          pane-style="padding: 20px;"
+        >
+          <n-tab-pane name="Public">Public</n-tab-pane>
+          <n-tab-pane name="Private">Private</n-tab-pane>
+        </n-tabs>
       </n-card>
     </div>
     <div v-else-if="loading" class="user">

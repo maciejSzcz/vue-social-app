@@ -49,7 +49,6 @@
 
 <script>
 import axios from "axios";
-import { mapGetters } from "vuex";
 import { useMessage } from "naive-ui";
 import NavBar from "@/components/NavBar.vue";
 import getInitials from "@/utils/getInitials";
@@ -68,22 +67,22 @@ export default {
       loading: false,
     };
   },
-  computed: {
-    ...mapGetters(["isUserPresent", "isLoggedIn"]),
-  },
   methods: {
     async getPost() {
       this.loading = true;
-      console.log(this.post);
-      console.log(this.id);
+
       return axios
         .get(`/posts/${this.id}`)
         .then((res) => {
           this.post = res.data?.data;
           this.loading = false;
         })
-        .catch(() => {
-          this.displayError("Error fetching post");
+        .catch(({ response }) => {
+          if (response?.status === 401) {
+            this.displayError("Unauthorized");
+          } else {
+            this.displayError("Unexpected error while fetching post");
+          }
           this.loading = false;
         });
     },

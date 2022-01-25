@@ -3,48 +3,99 @@
     <n-card class="login-box" title="Log in">
       <form class="login-form" @submit.prevent="login">
         <n-space vertical>
-          <n-form-item label="E-Mail">
+          <n-space vertical>
+            <n-text> Email </n-text>
             <n-input
               required
               v-model:value="email"
               type="email"
               placeholder="E-mail"
+              @blur="v$.email.$touch"
             />
-          </n-form-item>
-          <n-form-item label="Password">
+            <div class="error-space">
+              <n-text type="error" v-if="v$.email.$error">
+                Email has an error
+              </n-text>
+            </div>
+          </n-space>
+          <n-space vertical>
+            <n-text> Password </n-text>
             <n-input
               required
               v-model:value="password"
               type="password"
               show-password-on="mousedown"
               placeholder="Password"
+              @blur="v$.password.$touch"
             />
-          </n-form-item>
-          <n-button attr-type="submit" type="primary">Login</n-button>
+            <div class="error-space">
+              <n-text type="error" v-if="v$.password.$error">
+                Password is required
+              </n-text>
+            </div>
+          </n-space>
+          <n-space justify="space-between">
+            <n-space>
+              <n-text type="error" v-if="error">{{ error }}</n-text>
+            </n-space>
+            <n-button attr-type="submit" type="primary">Login</n-button>
+          </n-space>
         </n-space>
       </form>
     </n-card>
   </div>
 </template>
 <script>
+import { useMessage } from "naive-ui";
+import { email, required } from "@vuelidate/validators";
+import { useVuelidate } from "@vuelidate/core";
+
 export default {
   name: "Login",
   data() {
     return {
       email: "",
       password: "",
+      error: "",
     };
   },
   methods: {
-    login() {
-      const email = this.email;
-      const password = this.password;
+    async login() {
+      const isFormCorrect = await this.v$.$validate();
 
-      this.$store
-        .dispatch("login", { email, password })
-        .then(() => this.$router.push("/"))
-        .catch((err) => console.log(err));
+      if (isFormCorrect) {
+        const email = this.email;
+        const password = this.password;
+
+        this.$store
+          .dispatch("login", { email, password })
+          .then(() => {
+            this.error = "";
+            this.$router.push("/");
+          })
+          .catch(({ response }) => {
+            this.error = response?.data?.message;
+            this.displayError(response?.data?.message);
+          });
+      }
     },
+  },
+  setup() {
+    const message = useMessage();
+    return {
+      displayError(err) {
+        message.error(err, {
+          duration: 5000,
+        });
+      },
+      v$: useVuelidate(),
+    };
+  },
+  validations() {
+    return {
+      password: { required },
+      email: { required, email },
+    };
   },
 };
 </script>
@@ -59,6 +110,10 @@ export default {
 
 .login-box {
   width: 90%;
+}
+
+.error-space {
+  min-height: 1.2rem;
 }
 
 @media (min-width: 979px) {

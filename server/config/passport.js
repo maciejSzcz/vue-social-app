@@ -21,6 +21,6 @@ export default () => {
     secretOrKey: process.env.JWT_SECRET,
   };
 
-  passport.use(User.createStrategy());
+  passport.use(User.createStrategy(verifyCallback));
   passport.use(new JWTStrategy(config, verifyCallback));
 };

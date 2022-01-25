@@ -9,21 +9,15 @@ export default () => {
 
   api.get('/', catchAsync(usersController.findAll));
 
+  api.get('/:id/public', catchAsync(usersController.findById));
+
   api.get('/:id', jwtAuth, catchAsync(usersController.findById));
 
-  api.put('/:id', jwtAuth, catchAsync(usersController.updateById));
+  api.put('/:id', [jwtAuth, isSelf], catchAsync(usersController.updateById));
 
-  api.post(
-    '/:id/friends',
-    [jwtAuth, isSelf],
-    catchAsync(usersController.addFriend)
-  );
+  api.post('/:id/friends', jwtAuth, catchAsync(usersController.addFriend));
 
-  api.delete(
-    '/:id/friends',
-    [jwtAuth, isSelf],
-    catchAsync(usersController.deleteFriends)
-  );
+  api.delete('/:id/friends', jwtAuth, catchAsync(usersController.deleteFriend));
 
   return api;
 };

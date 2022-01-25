@@ -8,10 +8,10 @@
       </n-space>
       <n-space>
         <template v-if="!isLoggedIn">
-          <router-link to="Register">
+          <router-link to="/register">
             <n-button>Register</n-button>
           </router-link>
-          <router-link to="Login">
+          <router-link to="/login">
             <n-button type="primary">Login</n-button>
           </router-link>
         </template>

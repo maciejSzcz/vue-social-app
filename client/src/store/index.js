@@ -48,10 +48,10 @@ export default createStore({
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
           commit("AUTH_SUCCESS", { token: token, user: user });
         })
-        .catch(() => {
+        .catch((err) => {
           commit("AUTH_FAILURE");
           sessionStorage.removeItem("token");
-          throw new Error();
+          throw err;
         });
     },
     register({ commit }, user) {
@@ -66,9 +66,9 @@ export default createStore({
           commit("AUTH_SUCCESS", { token: token, user: user });
         })
         .catch((err) => {
-          commit("AUTH_ERROR", err);
+          commit("AUTH_FAILURE");
           sessionStorage.removeItem("token");
-          throw new Error();
+          throw err;
         });
     },
     logout({ commit }) {

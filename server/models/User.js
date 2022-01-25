@@ -17,6 +17,12 @@ const UserSchema = mongoose.Schema(
         ref: 'User',
       },
     ],
+    friendsRequest: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
     posts: [
       {
         type: mongoose.Schema.Types.ObjectId,

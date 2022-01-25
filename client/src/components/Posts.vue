@@ -1,9 +1,14 @@
 <template>
   <div class="posts-wrapper" v-if="posts?.length">
-    <PostForm v-if="isLoggedIn" @getPosts="getPosts" />
-    <div class="post" v-for="post in posts" :key="post?._id">
+    <PostForm v-if="isLoggedIn && !id" @getPosts="getPosts" />
+    <div
+      class="post"
+      :class="visibility"
+      v-for="post in posts"
+      :key="post?._id"
+    >
       <n-card>
-        <template #header v-if="post?.createdBy?._id">
+        <template #header v-if="post?.createdBy?._id && !id">
           <n-space>
             <n-avatar class="avatar">
               {{ getInitials(post?.createdBy) }}
@@ -15,7 +20,7 @@
             </router-link>
           </n-space>
         </template>
-        <template #header v-else>
+        <template #header v-else-if="!id">
           {{ post?.createdBy?.first_name }} {{ post?.createdBy?.last_name }}
         </template>
         <div
@@ -23,7 +28,7 @@
           v-html="post?.content"
           v-linkified:options="{ className: 'customLink' }"
         />
-        <n-space class="post-actions">
+        <n-space class="post-actions" v-if="isLoggedIn">
           <router-link :to="{ name: 'Post', params: { id: post?._id } }">
             <n-icon size="20">
               <chatbox-outline />
@@ -45,7 +50,7 @@
       </div>
     </template>
     <template v-else>
-      <PostForm v-if="isLoggedIn" @getPosts="getPosts" />
+      <PostForm v-if="isLoggedIn && !id" @getPosts="getPosts" />
       <div class="post empty">
         <n-card class="empty">
           <n-empty description="No posts found" />
@@ -69,6 +74,10 @@ export default {
     PostForm,
     ChatboxOutline,
   },
+  props: {
+    visibility: String,
+    id: String,
+  },
   data() {
     return {
       posts: null,
@@ -82,14 +91,18 @@ export default {
     async getPosts() {
       this.loading = true;
 
+      const url = this?.id
+        ? `/posts/user/${this?.id}/${this?.visibility}`
+        : "/posts";
+
       return axios
-        .get("/posts")
+        .get(url)
         .then((res) => {
           this.posts = res.data?.data;
           this.loading = false;
         })
         .catch(() => {
-          this.displayError("Error fetching posts");
+          this.displayError("Unexpected error while fetching posts");
           this.loading = false;
         });
     },
@@ -129,6 +142,11 @@ export default {
 .post {
   min-width: 50%;
   margin: 1rem 0;
+}
+
+.post.public,
+.post.private {
+  min-width: 90%;
 }
 
 .empty {

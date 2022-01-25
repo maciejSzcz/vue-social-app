@@ -76,8 +76,12 @@ export default {
           this.publicity = "private";
           this.$emit("getPosts");
         })
-        .catch(() => {
-          this.displayError("An error occurred while adding post");
+        .catch(({ response }) => {
+          if (response?.status === 401) {
+            this.displayError("Unauthorized");
+          } else {
+            this.displayError("An error occurred while adding post");
+          }
         });
     },
   },

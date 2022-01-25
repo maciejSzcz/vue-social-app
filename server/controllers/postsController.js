@@ -35,7 +35,7 @@ export default {
     } else {
       const posts = await Post.find({
         createdBy: req.params.id,
-        publicity: 'publicPosts',
+        $or: [{ publicity: 'publicPosts' }, { publicity: 'general' }],
       }).populate('createdBy');
 
       if (!posts) {
@@ -43,6 +43,26 @@ export default {
       }
       return res.status(200).send({ data: posts });
     }
+  },
+
+  async findPostsForUserWihPublicity(req, res, next) {
+    const publicity = res.locals.publicity;
+    const isSelf = req.user && req.user.id === req.params.id;
+
+    if (!res.locals.isFriends && !isSelf && publicity === 'privatePosts') {
+      return next();
+    }
+
+    const posts = await Post.find({
+      createdBy: req.params.id,
+      $or: [{ publicity: publicity }, { publicity: 'general' }],
+    }).populate('createdBy');
+
+    if (!posts) {
+      return next();
+    }
+
+    return res.status(200).send({ data: posts });
   },
 
   async findAllPublicPosts(req, res, next) {

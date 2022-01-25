@@ -57,13 +57,15 @@ import axios from "axios";
 import { mapGetters } from "vuex";
 import { useMessage } from "naive-ui";
 import NavBar from "@/components/NavBar.vue";
+import Comment from "@/components/Comment.vue";
 import getInitials from "@/utils/getInitials";
-import SocketService from "@/services/socketService";
+import SocketService from "@/services/SocketService";
 
 export default {
   name: "Post",
   components: {
     NavBar,
+    Comment,
   },
   props: {
     id: String,
@@ -77,6 +79,7 @@ export default {
       comments: null,
       loading: false,
       connected: false,
+      socket: null,
     };
   },
   methods: {
@@ -126,8 +129,8 @@ export default {
   },
   created() {
     if (this.isLoggedIn) {
-      this.socket = SocketService.setupSocketConnection();
-
+      SocketService.setupSocketConnection();
+      this.socket = SocketService.getSocket();
       this.socket.on("connect", () => {
         this.connected = true;
       });

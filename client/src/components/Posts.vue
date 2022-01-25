@@ -157,7 +157,7 @@ a {
   color: #42b983;
 }
 
-.post-content >>> .customLink {
+.post-content :deep(.customLink) {
   color: #42b983;
 }
 

@@ -1,10 +1,13 @@
 import { io } from "socket.io-client";
 import store from "@/store/index";
 
-class SocketioService {
+class SocketService {
   socket;
   constructor() {}
 
+  getSocket() {
+    return this.socket;
+  }
   setupSocketConnection() {
     const token = store.getters.token;
 
@@ -19,4 +22,4 @@ class SocketioService {
   }
 }
 
-export default new SocketioService();
+export default new SocketService();

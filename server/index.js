@@ -54,8 +54,8 @@ app.use('/api/auth', auth());
 app.use('/api/users', users());
 app.use('/api/posts', posts());
 
+socketListener(io);
+
 server.listen(config.server.port, () => {
   console.log(`Server started on port ${config.server.port}`);
 });
-
-socketListener(io);

@@ -40,7 +40,11 @@ const server = https.createServer(
   app
 );
 
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origins: [process.env.FRONTEND_URL],
+  },
+});
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

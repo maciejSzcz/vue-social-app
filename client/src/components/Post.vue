@@ -24,6 +24,11 @@
           v-linkified:options="{ className: 'customLink' }"
         />
       </n-card>
+      <Comment
+        v-for="comment in comments"
+        :key="comment._id"
+        :comment="comment"
+      />
     </div>
   </div>
   <div class="post-wrapper" v-else>
@@ -49,9 +54,11 @@
 
 <script>
 import axios from "axios";
+import { mapGetters } from "vuex";
 import { useMessage } from "naive-ui";
 import NavBar from "@/components/NavBar.vue";
 import getInitials from "@/utils/getInitials";
+import SocketService from "@/services/socketService";
 
 export default {
   name: "Post",
@@ -61,10 +68,15 @@ export default {
   props: {
     id: String,
   },
+  computed: {
+    ...mapGetters(["isLoggedIn", "token", "userId"]),
+  },
   data() {
     return {
       post: null,
+      comments: null,
       loading: false,
+      connected: false,
     };
   },
   methods: {
@@ -75,6 +87,7 @@ export default {
         .get(`/posts/${this.id}`)
         .then((res) => {
           this.post = res.data?.data;
+          this.comments = res.data?.data?.comments;
           this.loading = false;
         })
         .catch(({ response }) => {
@@ -89,6 +102,14 @@ export default {
     getInitials(_post) {
       return getInitials(_post);
     },
+    async addComment() {
+      this.socket.emit("comment", {
+        author: this.userId,
+        content: this.content,
+        relatedPostId: this.id,
+        publicity: "public", // TODO: FIX PUBLICITY
+      });
+    },
   },
   mounted() {
     this.getPost();
@@ -102,6 +123,26 @@ export default {
         });
       },
     };
+  },
+  created() {
+    if (this.isLoggedIn) {
+      this.socket = SocketService.setupSocketConnection();
+
+      this.socket.on("connect", () => {
+        this.connected = true;
+      });
+
+      this.socket.on(this.id, (comments) => {
+        this.comments = comments;
+      });
+
+      this.socket.on("disconnect", () => {
+        this.connected = false;
+      });
+    }
+  },
+  beforeUnmount() {
+    SocketService.disconnect();
   },
 };
 </script>
@@ -127,7 +168,7 @@ a {
   color: #42b983;
 }
 
-.post-content >>> .customLink {
+.post-content :deep(.customLink) {
   color: #42b983;
 }
 </style>

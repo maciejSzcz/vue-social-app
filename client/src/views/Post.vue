@@ -62,6 +62,7 @@ export default {
   },
   props: {
     id: String,
+    publicity: String,
   },
   computed: {
     ...mapGetters(["isLoggedIn", "token", "userId"]),

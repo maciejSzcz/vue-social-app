@@ -36,7 +36,10 @@
             </template>
           </n-space>
         </template>
-        {{ user?.email }}
+        <n-space justify="space-between">
+          <n-text>{{ user?.email }}</n-text>
+          <EditUserModal :user="user" @getUser="getUser" />
+        </n-space>
       </n-card>
       <n-card class="wall-tabs" content-style="padding: 0;">
         <n-tabs
@@ -67,6 +70,7 @@ import { mapGetters } from "vuex";
 import NavBar from "@/components/NavBar.vue";
 import Posts from "@/components/Posts.vue";
 import Loader from "@/components/Loader.vue";
+import EditUserModal from "@/components/EditUserModal.vue";
 import getInitials from "@/utils/getInitials";
 import { useMessage } from "naive-ui";
 
@@ -76,6 +80,7 @@ export default {
     NavBar,
     Posts,
     Loader,
+    EditUserModal,
   },
   props: {
     id: String,

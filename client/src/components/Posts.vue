@@ -1,4 +1,14 @@
 <template>
+  <n-space justify="center" class="publicity-radio" v-if="isLoggedIn && !id">
+    <n-radio-group size="large" v-model:value="publicity">
+      <n-radio-button size="large" value="publicPosts">
+        Public posts
+      </n-radio-button>
+      <n-radio-button size="large" value="privatePosts">
+        Private posts
+      </n-radio-button>
+    </n-radio-group>
+  </n-space>
   <div class="posts-wrapper" v-if="posts?.length">
     <PostForm v-if="isLoggedIn && !id" @getPosts="getPosts" />
     <div
@@ -50,7 +60,13 @@
           v-linkified:options="{ className: 'customLink' }"
         />
         <n-space class="post-actions" v-if="isLoggedIn">
-          <router-link :to="{ name: 'Post', params: { id: post?._id } }">
+          <router-link
+            :to="{
+              name: 'Post',
+              params: { id: post?._id },
+              query: { publicity: this.publicity },
+            }"
+          >
             <div class="comment-text">
               Comments
               <n-icon class="comment-icon" size="20">
@@ -64,12 +80,12 @@
   </div>
   <div class="posts-wrapper" v-else>
     <template v-if="loading">
-      <div class="post" v-for="i in 3" :key="i">
+      <div class="post">
         <n-card>
           <template #header>
             <n-skeleton text width="50%" />
           </template>
-          <n-skeleton text :repeat="4" />
+          <n-skeleton text :repeat="3" />
         </n-card>
       </div>
     </template>
@@ -107,6 +123,7 @@ export default {
     return {
       posts: null,
       loading: false,
+      publicity: "publicPosts",
     };
   },
   computed: {
@@ -121,7 +138,7 @@ export default {
 
       const url = this?.id
         ? `/posts/user/${this?.id}/${this?.visibility}`
-        : "/posts";
+        : `/posts/${this.publicity}`;
 
       return axios
         .get(url)
@@ -143,6 +160,9 @@ export default {
   },
   watch: {
     isUserPresent() {
+      this.getPosts();
+    },
+    publicity() {
       this.getPosts();
     },
   },
@@ -201,5 +221,9 @@ a {
 
 .comment-icon {
   padding: 0 0.7rem;
+}
+
+.publicity-radio {
+  padding: 1.5rem 0;
 }
 </style>

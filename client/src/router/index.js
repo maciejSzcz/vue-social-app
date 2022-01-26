@@ -32,7 +32,10 @@ const routes = [
     path: "/post/:id",
     name: "Post",
     component: Post,
-    props: true,
+    props: (route) => ({
+      id: route.params.id,
+      publicity: route.query?.publicity,
+    }),
     meta: {
       requiresAuth: true,
     },

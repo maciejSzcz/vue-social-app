@@ -2,8 +2,6 @@ import commentController from '../controllers/commentController.js';
 
 export default (io) => {
   io.on('connection', (socket) => {
-    console.log('hello there');
-
     socket.on('join', (room) => {
       socket.join(room);
     });

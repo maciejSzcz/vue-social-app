@@ -11,6 +11,12 @@ export default () => {
 
   api.get('/', catchAsync(postsController.findAllPublicPosts));
 
+  api.get(
+    '/private',
+    [jwtAuth],
+    catchAsync(postsController.findAllPrivatePosts)
+  );
+
   api.post(
     '/:id/private',
     [jwtAuth, isSelf, setPublicity('privatePosts')],
@@ -38,13 +44,13 @@ export default () => {
   api.get(
     '/user/:id/public',
     setPublicity('publicPosts'),
-    catchAsync(postsController.findPostsForUserWihPublicity)
+    catchAsync(postsController.findPostsForUserWithPublicity)
   );
 
   api.get(
     '/user/:id/private',
     [jwtAuth, isFriends, setPublicity('privatePosts')],
-    catchAsync(postsController.findPostsForUserWihPublicity)
+    catchAsync(postsController.findPostsForUserWithPublicity)
   );
 
   api.get(

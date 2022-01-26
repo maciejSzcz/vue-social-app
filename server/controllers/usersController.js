@@ -59,28 +59,32 @@ export default {
       return next();
     }
 
-    const friendInUserRequestList = await User.findOne({
+    const currentUserInUserRequestList = await User.findOne({
       _id: req.params.id,
       friendsRequest: req.user.id,
     });
 
-    const friendInUserFriendsList = await User.findOne({
+    const currentUserInUserFriendsList = await User.findOne({
       _id: req.params.id,
       friends: req.user.id,
     });
 
-    const userInFriendRequestsList = await User.findOne({
+    const userInCurrentUserFriendRequestsList = await User.findOne({
       _id: req.user.id,
-      friends: req.params.id,
+      friendsRequest: req.params.id,
     });
 
-    if (userInFriendRequestsList) {
+    console.log('in user request list', currentUserInUserRequestList);
+    console.log('in user friends list', currentUserInUserFriendsList);
+    console.log('in friends request list', userInCurrentUserFriendRequestsList);
+
+    if (currentUserInUserRequestList) {
       return res
         .status(400)
         .send({ message: 'You have already sent a friends request' });
     }
 
-    if (!friendInUserRequestList && !friendInUserFriendsList) {
+    if (!currentUserInUserFriendsList && !userInCurrentUserFriendRequestsList) {
       const updatedFriend = await friend.updateOne({
         $push: { friendsRequest: user },
       });
@@ -97,7 +101,7 @@ export default {
         .send({ message: 'Successfully sent a friend request' });
     }
 
-    if (friendInUserRequestList && !friendInUserFriendsList) {
+    if (userInCurrentUserFriendRequestsList && !currentUserInUserFriendsList) {
       const updatedUser = user.updateOne({
         $push: { friends: friend },
         $pull: { friendsRequest: req.params.id },

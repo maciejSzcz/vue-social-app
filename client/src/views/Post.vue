@@ -1,6 +1,6 @@
 <template>
   <NavBar />
-  <div class="post-wrapper" v-if="post">
+  <Loader :content="!!post" :loading="loading" notFoundMessage="Post not found">
     <div class="post">
       <n-card>
         <template #header v-if="post?.createdBy?._id">
@@ -25,40 +25,27 @@
         />
       </n-card>
       <div class="comment-wrapper">
-        <CommentForm @handleCommentSubmit="handleCommentSubmit" />
-        <Comment
-          v-for="comment in comments"
-          :key="comment._id"
-          :comment="comment"
-        />
+        <n-card>
+          <CommentForm @handleCommentSubmit="handleCommentSubmit" />
+          <template v-if="comments">
+            <n-divider title-placement="left">Comments</n-divider>
+            <Comment
+              v-for="comment in comments"
+              :key="comment._id"
+              :comment="comment"
+            />
+          </template>
+        </n-card>
       </div>
     </div>
-  </div>
-  <div class="post-wrapper" v-else>
-    <template v-if="loading">
-      <div class="post">
-        <n-card>
-          <template #header>
-            <n-skeleton text width="50%" />
-          </template>
-          <n-skeleton text :repeat="4" />
-        </n-card>
-      </div>
-    </template>
-    <template v-else>
-      <div class="post empty">
-        <n-card class="empty">
-          <n-empty description="No post found" />
-        </n-card>
-      </div>
-    </template>
-  </div>
+  </Loader>
 </template>
 
 <script>
 import axios from "axios";
 import { mapGetters } from "vuex";
 import { useMessage } from "naive-ui";
+import Loader from "@/components/Loader.vue";
 import NavBar from "@/components/NavBar.vue";
 import Comment from "@/components/Comment.vue";
 import CommentForm from "@/components/CommentForm.vue";
@@ -71,6 +58,7 @@ export default {
     NavBar,
     Comment,
     CommentForm,
+    Loader,
   },
   props: {
     id: String,
@@ -100,7 +88,7 @@ export default {
         })
         .catch(({ response }) => {
           if (response?.status === 401) {
-            this.displayError("Unauthorized");
+            this.displayError("Unauthorized", true);
           } else {
             this.displayError("Unexpected error while fetching post");
           }
@@ -125,9 +113,10 @@ export default {
   setup() {
     const message = useMessage();
     return {
-      displayError(err) {
+      displayError(err, unauthorized) {
         message.error(err, {
           duration: 5000,
+          onAfterLeave: () => (unauthorized ? this.$router.push("/") : null),
         });
       },
     };

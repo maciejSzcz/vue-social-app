@@ -102,6 +102,6 @@ export default createStore({
     isUserPresent: (state) => !!state.user?._id,
     authStatus: (state) => state.status,
     userId: (state) => state.user?._id,
-    user: (state) => state.user,
+    currentUser: (state) => state.user,
   },
 });

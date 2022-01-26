@@ -17,9 +17,10 @@
         </template>
         <template v-else>
           <n-gradient-text :size="18" class="username" type="success">
-            {{ user?.first_name ?? "" }} {{ user?.last_name ?? "" }}
+            {{ currentUser?.first_name ?? "" }}
+            {{ currentUser?.last_name ?? "" }}
           </n-gradient-text>
-          <router-link :to="{ name: 'User', params: { id: user?._id } }">
+          <router-link :to="{ name: 'User', params: { id: currentUser?._id } }">
             <n-button>Profile</n-button>
           </router-link>
           <n-button type="primary" @click="logout">Logout</n-button>
@@ -32,9 +33,9 @@
 import { mapGetters } from "vuex";
 
 export default {
-  name: "Posts",
+  name: "NavBar",
   computed: {
-    ...mapGetters(["isLoggedIn", "user"]),
+    ...mapGetters(["isLoggedIn", "currentUser"]),
   },
   methods: {
     logout() {

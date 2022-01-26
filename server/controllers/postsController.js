@@ -36,7 +36,9 @@ export default {
       const posts = await Post.find({
         createdBy: req.params.id,
         $or: [{ publicity: 'publicPosts' }, { publicity: 'general' }],
-      }).populate('createdBy');
+      })
+        .populate('createdBy')
+        .sort({ createdAt: -1 });
 
       if (!posts) {
         return next();
@@ -45,7 +47,7 @@ export default {
     }
   },
 
-  async findPostsForUserWihPublicity(req, res, next) {
+  async findPostsForUserWithPublicity(req, res, next) {
     const publicity = res.locals.publicity;
     const isSelf = req.user && req.user.id === req.params.id;
 
@@ -56,7 +58,9 @@ export default {
     const posts = await Post.find({
       createdBy: req.params.id,
       $or: [{ publicity: publicity }, { publicity: 'general' }],
-    }).populate('createdBy');
+    })
+      .populate('createdBy')
+      .sort({ createdAt: -1 });
 
     if (!posts) {
       return next();
@@ -68,8 +72,34 @@ export default {
   async findAllPublicPosts(req, res, next) {
     const posts = await Post.find({
       publicity: { $in: ['publicPosts', 'general'] },
-    }).populate('createdBy');
+    })
+      .populate('createdBy')
+      .sort({ createdAt: -1 });
 
+    return res.status(200).send({ data: posts });
+  },
+
+  async findAllPrivatePosts(req, res, next) {
+    const posts = await Post.aggregate([
+      {
+        $match: {
+          publicity: { $in: ['privatePosts', 'general'] },
+        },
+      },
+      {
+        $or: [
+          { createdBy: req.user.id },
+          { 'createdBy.friends._id': req.user.id },
+        ],
+      },
+    ]);
+    /* .populate('createdBy')
+      .sort({ createdAt: -1 }); */
+    /* createdBy: {
+        $elemMatch: {
+          $or: [{ _id: req.user._id }, { 'friends._id': req.user._id }],
+        },
+      }, */
     return res.status(200).send({ data: posts });
   },
 

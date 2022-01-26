@@ -9,19 +9,40 @@
     >
       <n-card>
         <template #header v-if="post?.createdBy?._id && !id">
-          <n-space>
-            <n-avatar class="avatar">
-              {{ getInitials(post?.createdBy) }}
-            </n-avatar>
-            <router-link
-              :to="{ name: 'User', params: { id: post?.createdBy?._id } }"
-            >
-              {{ post?.createdBy?.first_name }} {{ post?.createdBy?.last_name }}
-            </router-link>
+          <n-space justify="space-between">
+            <n-space>
+              <n-avatar class="avatar">
+                {{ getInitials(post?.createdBy) }}
+              </n-avatar>
+              <router-link
+                :to="{ name: 'User', params: { id: post?.createdBy?._id } }"
+              >
+                {{ post?.createdBy?.first_name }}
+                {{ post?.createdBy?.last_name }}
+              </router-link>
+            </n-space>
+            <n-p>
+              <n-time
+                class="creation-time"
+                :time="this.parseISO(post?.createdAt)"
+                :to="new Date()"
+                type="relative"
+              />
+            </n-p>
           </n-space>
         </template>
         <template #header v-else-if="!id">
           {{ post?.createdBy?.first_name }} {{ post?.createdBy?.last_name }}
+        </template>
+        <template #header v-else>
+          <n-h6 prefix="bar" align-text type="success">
+            <n-time
+              class="creation-time"
+              :time="this.parseISO(post?.createdAt)"
+              :to="new Date()"
+              type="relative"
+            />
+          </n-h6>
         </template>
         <div
           class="post-content"
@@ -30,9 +51,12 @@
         />
         <n-space class="post-actions" v-if="isLoggedIn">
           <router-link :to="{ name: 'Post', params: { id: post?._id } }">
-            <n-icon size="20">
-              <chatbox-outline />
-            </n-icon>
+            <div class="comment-text">
+              Comments
+              <n-icon class="comment-icon" size="20">
+                <chatbox-outline />
+              </n-icon>
+            </div>
           </router-link>
         </n-space>
       </n-card>
@@ -64,6 +88,7 @@
 import axios from "axios";
 import { mapGetters } from "vuex";
 import { useMessage } from "naive-ui";
+import { parseISO } from "date-fns";
 import PostForm from "@/components/PostForm";
 import getInitials from "@/utils/getInitials";
 import { ChatboxOutline } from "@vicons/ionicons5";
@@ -88,6 +113,9 @@ export default {
     ...mapGetters(["isUserPresent", "isLoggedIn"]),
   },
   methods: {
+    parseISO(timeStamp) {
+      return parseISO(timeStamp);
+    },
     async getPosts() {
       this.loading = true;
 
@@ -163,5 +191,15 @@ a {
 
 .post-actions {
   padding-top: 2rem;
+}
+
+.comment-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.comment-icon {
+  padding: 0 0.7rem;
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <NavBar />
-  <div class="user-wrapper">
-    <div v-if="user" class="user">
+  <Loader :content="!!user" :loading="loading" notFoundMessage="User not found">
+    <div class="user">
       <n-card :title="user?.first_name + ' ' + user?.last_name">
         <template #header>
           <n-space justify="space-between">
@@ -15,6 +15,14 @@
               <n-button v-if="isPending" @click="handleRemoveFriendClick">
                 Cancel request
               </n-button>
+              <div v-else-if="isPendingAcceptance">
+                <n-button @click="handleRemoveFriendClick">
+                  Reject request
+                </n-button>
+                <n-button @click="handleAddFriendClick">
+                  Accept request
+                </n-button>
+              </div>
               <n-button
                 type="primary"
                 v-else-if="!user?.isFriend"
@@ -36,30 +44,21 @@
           size="large"
           :tabs-padding="20"
           pane-style="padding: 20px;"
+          v-if="user?.isFriend || user._id === userId"
         >
           <n-tab-pane name="Public">
             <Posts visibility="public" :id="this?.id" />
           </n-tab-pane>
-          <n-tab-pane name="Private" v-if="user?.isFriend">
+          <n-tab-pane name="Private">
             <Posts visibility="private" :id="this?.id" />
           </n-tab-pane>
         </n-tabs>
-      </n-card>
-    </div>
-    <div v-else-if="loading" class="user">
-      <n-card>
-        <template #header>
-          <n-skeleton text width="50%" />
+        <template v-else>
+          <Posts visibility="public" :id="this?.id" />
         </template>
-        <n-skeleton text :repeat="2" />
       </n-card>
     </div>
-    <div v-else class="user">
-      <n-card>
-        <n-empty description="User not found" />
-      </n-card>
-    </div>
-  </div>
+  </Loader>
 </template>
 
 <script>
@@ -67,6 +66,7 @@ import axios from "axios";
 import { mapGetters } from "vuex";
 import NavBar from "@/components/NavBar.vue";
 import Posts from "@/components/Posts.vue";
+import Loader from "@/components/Loader.vue";
 import getInitials from "@/utils/getInitials";
 import { useMessage } from "naive-ui";
 
@@ -75,14 +75,18 @@ export default {
   components: {
     NavBar,
     Posts,
+    Loader,
   },
   props: {
     id: String,
   },
   computed: {
-    ...mapGetters(["isLoggedIn", "userId"]),
+    ...mapGetters(["isLoggedIn", "userId", "currentUser"]),
     isPending() {
       return this?.user?.friendsRequest.indexOf(this?.userId) >= 0;
+    },
+    isPendingAcceptance() {
+      return this?.currentUser?.friendsRequest.indexOf(this.id) >= 0;
     },
   },
   data() {
@@ -119,6 +123,7 @@ export default {
         .post(`users/${this.id}/friends`)
         .then(() => {
           this.getUser();
+          this.$store.dispatch("getUser");
         })
         .catch(({ response }) => {
           if (response?.status === 401) {
@@ -133,6 +138,7 @@ export default {
         .delete(`users/${this.id}/friends`)
         .then(() => {
           this.getUser();
+          this.$store.dispatch("getUser");
         })
         .catch(({ response }) => {
           if (response?.status === 401) {
@@ -163,16 +169,13 @@ export default {
 </script>
 
 <style scoped>
-.user-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
 .user {
   min-width: 50%;
   margin: 1rem 0;
+}
+
+.wall-tabs {
+  margin: 2rem 0;
 }
 
 a {

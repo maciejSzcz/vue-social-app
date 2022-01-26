@@ -74,9 +74,12 @@ export default {
   },
 
   async getPostById(req, res, next) {
-    const post = await Post.findOne({ _id: req.params.id }).populate(
-      'createdBy'
-    );
+    const post = await Post.findOne({ _id: req.params.id })
+      .populate('createdBy')
+      .populate({
+        path: 'comments',
+        populate: { path: 'createdBy', model: 'User' },
+      });
 
     return res.status(200).send({ data: post });
   },

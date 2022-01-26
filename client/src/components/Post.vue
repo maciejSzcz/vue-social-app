@@ -24,11 +24,14 @@
           v-linkified:options="{ className: 'customLink' }"
         />
       </n-card>
-      <Comment
-        v-for="comment in comments"
-        :key="comment._id"
-        :comment="comment"
-      />
+      <div class="comment-wrapper">
+        <CommentForm @handleCommentSubmit="handleCommentSubmit" />
+        <Comment
+          v-for="comment in comments"
+          :key="comment._id"
+          :comment="comment"
+        />
+      </div>
     </div>
   </div>
   <div class="post-wrapper" v-else>
@@ -58,6 +61,7 @@ import { mapGetters } from "vuex";
 import { useMessage } from "naive-ui";
 import NavBar from "@/components/NavBar.vue";
 import Comment from "@/components/Comment.vue";
+import CommentForm from "@/components/CommentForm.vue";
 import getInitials from "@/utils/getInitials";
 import SocketService from "@/services/SocketService";
 
@@ -66,6 +70,7 @@ export default {
   components: {
     NavBar,
     Comment,
+    CommentForm,
   },
   props: {
     id: String,
@@ -105,12 +110,12 @@ export default {
     getInitials(_post) {
       return getInitials(_post);
     },
-    async addComment() {
+    async handleCommentSubmit(content) {
       this.socket.emit("comment", {
         author: this.userId,
-        content: this.content,
+        content: content,
         relatedPostId: this.id,
-        publicity: "public", // TODO: FIX PUBLICITY
+        publicity: "publicPosts", // TODO: FIX PUBLICITY
       });
     },
   },
@@ -131,11 +136,18 @@ export default {
     if (this.isLoggedIn) {
       SocketService.setupSocketConnection();
       this.socket = SocketService.getSocket();
-      this.socket.on("connect", () => {
-        this.connected = true;
+
+      this.socket.on("error", () => {
+        this.displayError("Unexpected connection error");
       });
 
-      this.socket.on(this.id, (comments) => {
+      this.socket.on("connect", () => {
+        this.connected = true;
+        this.socket.emit("join", `${this.id}`);
+      });
+
+      this.socket.on(`${this.id}`, (comments) => {
+        console.log(comments);
         this.comments = comments;
       });
 
@@ -169,6 +181,10 @@ export default {
 
 a {
   color: #42b983;
+}
+
+.comment-wrapper {
+  margin: 1rem 0;
 }
 
 .post-content :deep(.customLink) {

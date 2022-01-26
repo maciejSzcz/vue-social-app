@@ -10,6 +10,7 @@ import auth from './routes/auth.js';
 import users from './routes/users.js';
 import posts from './routes/posts.js';
 import passport from './config/passport.js';
+import authSocket from './middlewares/authSocket.js';
 import { Server } from 'socket.io';
 import socketListener from './listeners/socketListener.js';
 
@@ -42,7 +43,8 @@ const server = https.createServer(
 
 const io = new Server(server, {
   cors: {
-    origins: [process.env.FRONTEND_URL],
+    origin: process.env.FRONTEND_URL,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   },
 });
 
@@ -53,6 +55,8 @@ app.use(cors());
 app.use('/api/auth', auth());
 app.use('/api/users', users());
 app.use('/api/posts', posts());
+
+io.use(authSocket());
 
 socketListener(io);
 

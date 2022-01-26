@@ -1,11 +1,24 @@
-/* import commentController from '../controllers/commentController.js';
- */
+import commentController from '../controllers/commentController.js';
+
 export default (io) => {
   io.on('connection', (socket) => {
     console.log('hello there');
 
+    socket.on('join', (room) => {
+      socket.join(room);
+    });
+
     socket.on('comment', async (comment) => {
-      console.log(comment);
+      await commentController.addComment(comment);
+
+      const commentsForPost = await commentController.getCommentsForPostId(
+        comment.relatedPostId
+      );
+
+      io.in(`${comment.relatedPostId}`).emit(
+        `${comment.relatedPostId}`,
+        commentsForPost
+      );
     });
 
     socket.on('disconnect', () => {

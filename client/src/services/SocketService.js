@@ -12,7 +12,7 @@ class SocketService {
     const token = store.getters.token;
 
     this.socket = io(process.env.VUE_APP_SOCKET_URL, {
-      query: `token=${token}`,
+      query: `auth_token=${token}`,
     });
   }
   disconnect() {

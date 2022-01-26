@@ -1,36 +1,39 @@
 import Comment from '../models/Comment.js';
 import Post from '../models/Post.js';
+import User from '../models/User.js';
 
 export default {
-  async addComment(req, res) {
-    const publicity = res.locals.publicity;
-    const post = await Post.findOne({ _id: req.params.id });
-    const user = await User.findOne({ _id: req.user.id });
+  async addComment(submittedComment) {
+    const publicity = submittedComment.publicity;
+    const post = await Post.findOne({ _id: submittedComment.relatedPostId });
+    const user = await User.findOne({ _id: submittedComment.author });
 
-    if (post.publicity != publicity || post.publicity != 'general') {
-      return res
-        .status(400)
-        .send({ message: 'Cannot add a comment to this post now ', err });
+    if (post.publicity != publicity && post.publicity != 'general') {
+      return 'error';
     }
-    const { content } = req.body;
+
     const comment = new Comment({
-      content,
+      content: submittedComment.content,
       relatedPost: post,
       createdBy: user,
+      publicity: publicity,
     });
 
     const updatedPost = post.updateOne({
       $push: { comments: comment },
     });
 
-    const data = await Promise.all([updatedPost, comment.save()]).catch(
-      (err) => {
-        return res
-          .status(500)
-          .send({ message: 'Error occurred while adding comment ', err });
-      }
+    await Promise.all([updatedPost, comment.save()]).catch((err) => {
+      return err;
+    });
+
+    return true;
+  },
+  async getCommentsForPostId(postId) {
+    const comments = await Comment.find({ relatedPost: postId }).populate(
+      'createdBy'
     );
 
-    return res.status(201).send({ data: data[1] });
+    return comments;
   },
 };

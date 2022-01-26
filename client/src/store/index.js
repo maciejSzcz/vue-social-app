@@ -98,6 +98,7 @@ export default createStore({
   modules: {},
   getters: {
     isLoggedIn: (state) => !!state.token,
+    token: (state) => state.token,
     isUserPresent: (state) => !!state.user?._id,
     authStatus: (state) => state.status,
     userId: (state) => state.user?._id,

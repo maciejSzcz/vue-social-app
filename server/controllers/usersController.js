@@ -8,7 +8,7 @@ export default {
   },
 
   async findById(req, res, next) {
-    const user = await User.findOne({ _id: req.params.id });
+    const user = await User.findOne({ _id: req.params.id }).populate('friends');
     if (!user) {
       return next();
     }
@@ -40,7 +40,8 @@ export default {
     if (!user) {
       return next();
     }
-    const updatedUser = await user.updateOne(req.params.body).catch((err) => {
+
+    const updatedUser = await user.updateOne(req.body).catch((err) => {
       return res
         .status(500)
         .send({ message: 'Error occurred while updating user ', err });
@@ -50,46 +51,69 @@ export default {
   },
 
   async addFriend(req, res, next) {
-    const user = await User.findOne({ _id: req.user.id }).populate('friends');
-    const friend = await User.findOne({ _id: req.params.id }).populate(
+    const currentUser = await User.findOne({ _id: req.user.id }).populate(
+      'friends'
+    );
+    const otherUser = await User.findOne({ _id: req.params.id }).populate(
       'friends'
     );
 
-    if (!user || !friend) {
+    if (!currentUser || !otherUser) {
       return next();
     }
 
-    const currentUserInUserRequestList = await User.findOne({
+    const currentUserInOtherUserFriendRequestList = await User.findOne({
       _id: req.params.id,
       friendsRequest: req.user.id,
     });
 
-    const currentUserInUserFriendsList = await User.findOne({
+    const currentUserInOtherUserFriendsList = await User.findOne({
       _id: req.params.id,
       friends: req.user.id,
     });
 
-    const userInCurrentUserFriendRequestsList = await User.findOne({
+    const otherUserInCurrentUserFriendRequestsList = await User.findOne({
       _id: req.user.id,
       friendsRequest: req.params.id,
     });
 
-    console.log('in user request list', currentUserInUserRequestList);
-    console.log('in user friends list', currentUserInUserFriendsList);
-    console.log('in friends request list', userInCurrentUserFriendRequestsList);
-
-    if (currentUserInUserRequestList) {
+    if (currentUserInOtherUserFriendRequestList) {
       return res
         .status(400)
         .send({ message: 'You have already sent a friends request' });
     }
 
-    if (!currentUserInUserFriendsList && !userInCurrentUserFriendRequestsList) {
-      const updatedFriend = await friend.updateOne({
-        $push: { friendsRequest: user },
+    if (currentUserInOtherUserFriendsList) {
+      return res.status(400).send({ message: 'User is already your friend' });
+    }
+
+    if (otherUserInCurrentUserFriendRequestsList) {
+      const updatedUser = currentUser.updateOne({
+        $push: { friends: otherUser },
+        $pull: { friendsRequest: req.params.id },
+      });
+      const updatedOtherUser = otherUser.updateOne({
+        $push: { friends: currentUser },
       });
 
-      if (!updatedFriend) {
+      const [savedUser, savedOtherUser] = await Promise.all([
+        updatedUser,
+        updatedOtherUser,
+      ]).catch((err) => {
+        return res
+          .status(500)
+          .send({ message: 'Error occurred while adding friend ', err });
+      });
+
+      return res.status(201).send({ data: { savedUser, savedOtherUser } });
+    }
+
+    if (!currentUserInOtherUserFriendsList) {
+      const updatedOtherUser = await otherUser.updateOne({
+        $push: { friendsRequest: currentUser },
+      });
+
+      if (!updatedOtherUser) {
         return res.status(500).send({
           message: 'Error occurred while sending a friend request ',
           err,
@@ -101,53 +125,36 @@ export default {
         .send({ message: 'Successfully sent a friend request' });
     }
 
-    if (userInCurrentUserFriendRequestsList && !currentUserInUserFriendsList) {
-      const updatedUser = user.updateOne({
-        $push: { friends: friend },
-        $pull: { friendsRequest: req.params.id },
-      });
-      const updatedFriend = friend.updateOne({
-        $push: { friends: user },
-      });
-
-      const [savedUser, savedFriend] = await Promise.all([
-        updatedUser,
-        updatedFriend,
-      ]).catch((err) => {
-        return res
-          .status(500)
-          .send({ message: 'Error occurred while adding friend ', err });
-      });
-
-      return res.status(201).send({ data: { savedUser, savedFriend } });
-    }
-    return res.status(400).send({ message: 'User is already your friend' });
+    return res
+      .status(500)
+      .send({ message: 'Unexpected error while adding friend' });
   },
 
   async deleteFriend(req, res, next) {
     const user = await User.findOne({ _id: req.user.id });
-    const friend = await User.findOne({ _id: req.params.id });
+    const otherUser = await User.findOne({ _id: req.params.id });
 
-    if (!user || !friend) {
+    if (!user || !otherUser) {
       return next();
     }
 
     const updatedUser = user.updateOne({
       $pull: { friends: req.params.id, friendsRequest: req.params.id },
     });
-    const updatedFriend = friend.updateOne({
+    const updatedOtherUser = otherUser.updateOne({
       $pull: { friends: req.user.id, friendsRequest: req.user.id },
     });
 
-    const [savedUser, savedFriend] = await Promise.all([
+    const [savedUser, savedOtherUser] = await Promise.all([
       updatedUser,
-      updatedFriend,
+      updatedOtherUser,
     ]).catch((err) => {
       return res
         .status(500)
         .send({ message: 'Error occurred while removing friend ', err });
     });
 
-    return res.status(201).send({ data: { savedUser, savedFriend } });
+    console.log(savedUser, savedOtherUser);
+    return res.status(201).send({ data: { savedUser, savedOtherUser } });
   },
 };

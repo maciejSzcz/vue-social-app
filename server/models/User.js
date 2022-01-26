@@ -11,6 +11,7 @@ const UserSchema = mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    description: String,
     friends: [
       {
         type: mongoose.Schema.Types.ObjectId,

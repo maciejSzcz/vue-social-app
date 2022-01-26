@@ -87,20 +87,52 @@ export default {
         },
       },
       {
-        $or: [
-          { createdBy: req.user.id },
-          { 'createdBy.friends._id': req.user.id },
-        ],
+        $lookup: {
+          from: 'users',
+          localField: 'createdBy',
+          foreignField: 'friends',
+          as: 'creator_friends',
+        },
+      },
+      {
+        $unwind: '$creator_friends',
+      },
+      {
+        $project: {
+          _id: 1,
+          publicity: 1,
+          content: 1,
+          comments: 1,
+          createdBy: 1,
+          createdAt: 1,
+          creator_friend_id: '$creator_friends._id',
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { createdBy: req.user._id },
+            { creator_friend_id: req.user._id },
+          ],
+        },
+      },
+      {
+        $sort: {
+          createdAt: -1,
+        },
+      },
+      {
+        $project: {
+          creator_friend_id: 0,
+        },
       },
     ]);
-    /* .populate('createdBy')
-      .sort({ createdAt: -1 }); */
-    /* createdBy: {
-        $elemMatch: {
-          $or: [{ _id: req.user._id }, { 'friends._id': req.user._id }],
-        },
-      }, */
-    return res.status(200).send({ data: posts });
+
+    const populatedPosts = await Post.populate(posts, {
+      path: 'createdBy',
+    });
+
+    return res.status(200).send({ data: populatedPosts });
   },
 
   async getPostById(req, res, next) {

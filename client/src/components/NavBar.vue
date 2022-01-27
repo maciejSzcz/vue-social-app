@@ -5,6 +5,11 @@
         <router-link to="/">
           <n-avatar class="avatar">MW</n-avatar>
         </router-link>
+        <n-badge :value="currentUser?.friendsRequest.length" :max="5">
+          <router-link class="user-link" to="/userList">
+            <n-button>Users</n-button>
+          </router-link>
+        </n-badge>
       </n-space>
       <n-space>
         <template v-if="!isLoggedIn">
@@ -54,5 +59,9 @@ export default {
 
 .username {
   padding: 0 2rem;
+}
+
+.user-link {
+  margin-left: 1.5rem;
 }
 </style>

@@ -16,10 +16,13 @@
                 Cancel request
               </n-button>
               <div v-else-if="isPendingAcceptance">
-                <n-button @click="handleRemoveFriendClick">
+                <n-button
+                  class="reject-button"
+                  @click="handleRemoveFriendClick"
+                >
                   Reject request
                 </n-button>
-                <n-button @click="handleAddFriendClick">
+                <n-button type="primary" @click="handleAddFriendClick">
                   Accept request
                 </n-button>
               </div>
@@ -43,7 +46,11 @@
             </a>
             <n-text>{{ user?.description }}</n-text>
           </n-space>
-          <EditUserModal :user="user" @getUser="getUser" />
+          <EditUserModal
+            v-if="isLoggedIn && isSelf"
+            :user="user"
+            @getUser="getUser"
+          />
         </n-space>
       </n-card>
       <n-card class="wall-tabs" content-style="padding: 0;">
@@ -92,10 +99,13 @@ export default {
   computed: {
     ...mapGetters(["isLoggedIn", "userId", "currentUser"]),
     isPending() {
-      return this?.user?.friendsRequest.indexOf(this?.userId) >= 0;
+      return this?.user?.friendsRequest?.indexOf(this?.userId) >= 0;
     },
     isPendingAcceptance() {
-      return this?.currentUser?.friendsRequest.indexOf(this.id) >= 0;
+      return this?.currentUser?.friendsRequest?.indexOf(this.id) >= 0;
+    },
+    isSelf() {
+      return this.id === this?.userId;
     },
   },
   data() {
@@ -189,5 +199,9 @@ export default {
 
 a {
   color: #42b983;
+}
+
+.reject-button {
+  margin-right: 0.7rem;
 }
 </style>

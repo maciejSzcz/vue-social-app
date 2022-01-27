@@ -25,10 +25,16 @@
               Cancel request
             </n-button>
             <div v-else-if="isPendingAcceptance(user)">
-              <n-button @click="() => handleRemoveFriendClick(user?._id)">
+              <n-button
+                class="reject-button"
+                @click="() => handleRemoveFriendClick(user?._id)"
+              >
                 Reject request
               </n-button>
-              <n-button @click="() => handleAddFriendClick(user?._id)">
+              <n-button
+                type="primary"
+                @click="() => handleAddFriendClick(user?._id)"
+              >
                 Accept request
               </n-button>
             </div>
@@ -126,7 +132,7 @@ export default {
       return user?.friendsRequest?.indexOf(this?.userId) >= 0;
     },
     isPendingAcceptance(user) {
-      return this?.currentUser?.friendsRequest?.indexOf(user?.id) >= 0;
+      return this?.currentUser?.friendsRequest?.indexOf(user?._id) >= 0;
     },
     getInitials(user) {
       return getInitials(user);
@@ -155,5 +161,9 @@ export default {
 
 a {
   color: #42b983;
+}
+
+.reject-button {
+  margin-right: 0.7rem;
 }
 </style>

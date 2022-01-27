@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env' });
 import express from 'express';
 import fs from 'fs';
+import path from 'path';
 import https from 'https';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -47,6 +48,10 @@ const io = new Server(server, {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   },
 });
+
+const __dirname = path.resolve();
+
+app.use('/', express.static(path.join(__dirname, 'dist')));
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());

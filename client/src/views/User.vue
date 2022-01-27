@@ -37,7 +37,12 @@
           </n-space>
         </template>
         <n-space justify="space-between">
-          <n-text>{{ user?.email }}</n-text>
+          <n-space vertical>
+            <a :href="'mailto:' + this.user?.email">
+              {{ user?.email }}
+            </a>
+            <n-text>{{ user?.description }}</n-text>
+          </n-space>
           <EditUserModal :user="user" @getUser="getUser" />
         </n-space>
       </n-card>
@@ -63,7 +68,6 @@
     </div>
   </Loader>
 </template>
-
 <script>
 import axios from "axios";
 import { mapGetters } from "vuex";
@@ -105,8 +109,8 @@ export default {
       this.loading = true;
 
       const url = this.isLoggedIn
-        ? `users/${this.id}`
-        : `users/${this.id}/public`;
+        ? `/users/${this.id}`
+        : `/users/${this.id}/public`;
 
       return axios
         .get(url)

@@ -151,8 +151,8 @@ export default {
           this.loading = false;
         });
     },
-    getInitials(post) {
-      return getInitials(post);
+    getInitials(user) {
+      return getInitials(user);
     },
   },
   mounted() {

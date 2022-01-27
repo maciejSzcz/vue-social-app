@@ -1,7 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Home from "@/views/Home.vue";
 import Login from "@/views/Login.vue";
+import NotFound from "@/views/NotFound.vue";
 import Register from "@/views/Register.vue";
+import UserList from "@/views/UserList.vue";
 import User from "@/views/User.vue";
 import Post from "@/views/Post.vue";
 import store from "@/store/index.js";
@@ -23,6 +25,11 @@ const routes = [
     component: Register,
   },
   {
+    path: "/userList",
+    name: "UserList",
+    component: UserList,
+  },
+  {
     path: "/user/:id",
     name: "User",
     component: User,
@@ -39,6 +46,11 @@ const routes = [
     meta: {
       requiresAuth: true,
     },
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "NotFound",
+    component: NotFound,
   },
 ];
 

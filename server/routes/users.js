@@ -8,6 +8,11 @@ export default () => {
   const api = Router();
 
   api.get('/', catchAsync(usersController.findAll));
+  api.get(
+    '/authorized',
+    jwtAuth,
+    catchAsync(usersController.findAllAuthorized)
+  );
 
   api.get('/:id/public', catchAsync(usersController.findById));
 

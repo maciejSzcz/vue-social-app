@@ -75,8 +75,10 @@ export default {
     async getUsers() {
       this.loading = true;
 
+      const url = this.isLoggedIn ? "/users/authorized" : "/users";
+
       return axios
-        .get("/users")
+        .get(url)
         .then((res) => {
           this.users = res.data?.data;
           this.loading = false;
@@ -121,10 +123,10 @@ export default {
         });
     },
     isPending(user) {
-      return user?.friendsRequest.indexOf(this?.userId) >= 0;
+      return user?.friendsRequest?.indexOf(this?.userId) >= 0;
     },
     isPendingAcceptance(user) {
-      return this?.currentUser?.friendsRequest.indexOf(user?.id) >= 0;
+      return this?.currentUser?.friendsRequest?.indexOf(user?.id) >= 0;
     },
     getInitials(user) {
       return getInitials(user);

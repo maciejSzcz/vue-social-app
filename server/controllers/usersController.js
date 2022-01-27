@@ -7,6 +7,52 @@ export default {
     return res.status(200).send({ data: users });
   },
 
+  async findAllAuthorized(req, res) {
+    const users = await User.aggregate([
+      {
+        $set: {
+          isFriend: {
+            $cond: [
+              {
+                $gt: [
+                  {
+                    $size: {
+                      $filter: {
+                        input: '$friends',
+                        as: 'friend',
+                        cond: { $eq: ['$$friend', req.user._id] },
+                      },
+                    },
+                  },
+                  0,
+                ],
+              },
+              true,
+              false,
+            ],
+          },
+          friendRequestCount: {
+            $size: '$friendsRequest',
+          },
+        },
+      },
+      {
+        $sort: {
+          friendRequestCount: -1,
+        },
+      },
+      {
+        $project: {
+          salt: 0,
+          hash: 0,
+          friendRequestCount: 0,
+        },
+      },
+    ]);
+
+    return res.status(200).send({ data: users });
+  },
+
   async findById(req, res, next) {
     const user = await User.findOne({ _id: req.params.id }).populate('friends');
     if (!user) {

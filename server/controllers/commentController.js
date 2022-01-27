@@ -29,10 +29,11 @@ export default {
 
     return true;
   },
-  async getCommentsForPostId(postId) {
-    const comments = await Comment.find({ relatedPost: postId }).populate(
-      'createdBy'
-    );
+  async getCommentsForPostId(postId, publicity) {
+    const comments = await Comment.find({
+      relatedPost: postId,
+      publicity: publicity,
+    }).populate('createdBy');
 
     return comments;
   },

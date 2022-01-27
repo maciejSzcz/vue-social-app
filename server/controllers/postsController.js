@@ -145,4 +145,17 @@ export default {
 
     return res.status(200).send({ data: post });
   },
+
+  async getPostByIdWithPublicity(req, res, next) {
+    const publicity = res.locals.publicity;
+    const post = await Post.findOne({ _id: req.params.id })
+      .populate('createdBy')
+      .populate({
+        path: 'comments',
+        match: { publicity: publicity },
+        populate: { path: 'createdBy', model: 'User' },
+      });
+
+    return res.status(200).send({ data: post });
+  },
 };

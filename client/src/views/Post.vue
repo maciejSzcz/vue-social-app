@@ -81,7 +81,7 @@ export default {
       this.loading = true;
 
       return axios
-        .get(`/posts/${this.id}`)
+        .get(`/posts/${this.id}/${this.publicity}`)
         .then((res) => {
           this.post = res.data?.data;
           this.comments = res.data?.data?.comments;
@@ -104,7 +104,7 @@ export default {
         author: this.userId,
         content: content,
         relatedPostId: this.id,
-        publicity: "publicPosts", // TODO: FIX PUBLICITY
+        publicity: this.publicity,
       });
     },
   },
@@ -133,10 +133,10 @@ export default {
 
       this.socket.on("connect", () => {
         this.connected = true;
-        this.socket.emit("join", `${this.id}`);
+        this.socket.emit("join", `${this.id}/${this.publicity}`);
       });
 
-      this.socket.on(`${this.id}`, (comments) => {
+      this.socket.on(`${this.id}/${this.publicity}`, (comments) => {
         console.log(comments);
         this.comments = comments;
       });

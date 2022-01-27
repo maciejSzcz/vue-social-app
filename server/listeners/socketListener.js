@@ -10,11 +10,12 @@ export default (io) => {
       await commentController.addComment(comment);
 
       const commentsForPost = await commentController.getCommentsForPostId(
-        comment.relatedPostId
+        comment.relatedPostId,
+        comment.publicity
       );
 
-      io.in(`${comment.relatedPostId}`).emit(
-        `${comment.relatedPostId}`,
+      io.in(`${comment.relatedPostId}/${comment.publicity}`).emit(
+        `${comment.relatedPostId}/${comment.publicity}`,
         commentsForPost
       );
     });

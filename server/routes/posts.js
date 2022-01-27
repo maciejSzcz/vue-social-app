@@ -59,5 +59,17 @@ export default () => {
     catchAsync(postsController.getPostById)
   );
 
+  api.get(
+    '/:id/publicPosts',
+    [jwtAuth, isFriends, setPublicity('publicPosts')],
+    catchAsync(postsController.getPostByIdWithPublicity)
+  );
+
+  api.get(
+    '/:id/privatePosts',
+    [jwtAuth, isFriends, setPublicity('privatePosts')],
+    catchAsync(postsController.getPostByIdWithPublicity)
+  );
+
   return api;
 };

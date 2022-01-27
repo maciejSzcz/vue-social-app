@@ -14,7 +14,7 @@ import passport from './config/passport.js';
 import authSocket from './middlewares/authSocket.js';
 import { Server } from 'socket.io';
 import socketListener from './listeners/socketListener.js';
-
+import history from 'connect-history-api-fallback';
 // Connect to database
 import dbConfig from './config/database.js';
 import mongoose from 'mongoose';
@@ -51,12 +51,12 @@ const io = new Server(server, {
 
 const __dirname = path.resolve();
 
-app.use('/', express.static(path.join(__dirname, 'dist')));
-
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cors());
+app.use(history());
 
+app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/api/auth', auth());
 app.use('/api/users', users());
 app.use('/api/posts', posts());

@@ -200,7 +200,6 @@ export default {
         .send({ message: 'Error occurred while removing friend ', err });
     });
 
-    console.log(savedUser, savedOtherUser);
     return res.status(201).send({ data: { savedUser, savedOtherUser } });
   },
 };

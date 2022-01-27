@@ -137,7 +137,6 @@ export default {
       });
 
       this.socket.on(`${this.id}/${this.publicity}`, (comments) => {
-        console.log(comments);
         this.comments = comments;
       });
 

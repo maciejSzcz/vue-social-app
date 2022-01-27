@@ -123,7 +123,7 @@ export default {
     return {
       posts: null,
       loading: false,
-      publicity: "publicPosts",
+      publicity: this.visibility ? `${this.visibility}Posts` : "publicPosts",
     };
   },
   computed: {

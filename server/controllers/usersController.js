@@ -2,13 +2,37 @@ import User from '../models/User.js';
 
 export default {
   async findAll(req, res) {
-    const users = await User.find();
+    const { page = 1, limit = 3, search } = req.query;
+    const query = {
+      $or: [
+        { first_name: new RegExp(search) },
+        { last_name: new RegExp(search) },
+      ],
+    };
 
-    return res.status(200).send({ data: users });
+    const usersPaginated = await User.paginate(search ? query : {}, {
+      page,
+      limit,
+    });
+
+    return res.status(200).send({
+      data: usersPaginated.docs,
+      pageCount: usersPaginated.totalPages,
+      page: usersPaginated.page,
+    });
   },
 
   async findAllAuthorized(req, res) {
-    const users = await User.aggregate([
+    const { page = 1, limit = 10, search } = req.query;
+    const query = {
+      $or: [
+        { first_name: new RegExp(search) },
+        { last_name: new RegExp(search) },
+      ],
+    };
+
+    const usersAggregate = User.aggregate([
+      { $match: search ? query : {} },
       {
         $set: {
           isFriend: {
@@ -50,7 +74,12 @@ export default {
       },
     ]);
 
-    return res.status(200).send({ data: users });
+    const usersPaginated = await User.aggregatePaginate(usersAggregate, {
+      page,
+      limit,
+    });
+
+    return res.status(200).send({ data: usersPaginated.docs, usersPaginated });
   },
 
   async findById(req, res, next) {

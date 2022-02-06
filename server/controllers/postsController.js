@@ -1,7 +1,7 @@
 import User from '../models/User.js';
 import Post from '../models/Post.js';
 
-export default {
+export default (io) => ({
   async addPost(req, res) {
     const publicity = res.locals.publicity;
     const user = await User.findOne({ _id: req.params.id });
@@ -23,6 +23,7 @@ export default {
   },
 
   async findPostsForUser(req, res, next) {
+    console.log(io.sockets);
     if (res.locals.isFriends || req.user.id === req.params.id) {
       const posts = await Post.find({ createdBy: req.params.id }).populate(
         'createdBy'
@@ -158,4 +159,4 @@ export default {
 
     return res.status(200).send({ data: post });
   },
-};
+});

@@ -70,7 +70,9 @@
             <div class="comment-text">
               Comments
               <n-icon class="comment-icon" size="20">
-                <chatbox-outline />
+                <n-badge color="#18a058" :value="post?.comments.length">
+                  <chatbox-outline />
+                </n-badge>
               </n-icon>
             </div>
           </router-link>

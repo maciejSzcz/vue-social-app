@@ -1,13 +1,14 @@
 import { Router } from 'express';
 import { catchAsync } from '../middlewares/errors.js';
-import postsController from '../controllers/postsController.js';
+import _postsController from '../controllers/postsController.js';
 import jwtAuth from '../middlewares/auth.js';
 import isSelf from '../middlewares/isSelf.js';
 import isFriends from '../middlewares/isFriends.js';
 import setPublicity from '../middlewares/setPublicity.js';
 
-export default () => {
+export default (io) => {
   const api = Router();
+  const postsController = _postsController(io);
 
   api.get('/publicPosts', catchAsync(postsController.findAllPublicPosts));
 

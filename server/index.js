@@ -56,14 +56,14 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(history());
 
-app.use(express.static(path.join(__dirname, 'dist')));
-app.use('/api/auth', auth());
-app.use('/api/users', users());
-app.use('/api/posts', posts());
-
 io.use(authSocket());
 
 socketListener(io);
+
+app.use(express.static(path.join(__dirname, 'dist')));
+app.use('/api/auth', auth());
+app.use('/api/users', users());
+app.use('/api/posts', posts(io));
 
 server.listen(config.server.port, () => {
   console.log(`Server started on port ${config.server.port}`);

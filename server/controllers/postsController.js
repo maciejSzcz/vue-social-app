@@ -75,6 +75,7 @@ export default (io) => ({
       publicity: { $in: ['publicPosts', 'general'] },
     })
       .populate('createdBy')
+      .populate('comments')
       .sort({ createdAt: -1 });
 
     return res.status(200).send({ data: posts });
@@ -131,6 +132,7 @@ export default (io) => ({
 
     const populatedPosts = await Post.populate(posts, {
       path: 'createdBy',
+      path: 'comments',
     });
 
     return res.status(200).send({ data: populatedPosts });

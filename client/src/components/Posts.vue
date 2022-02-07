@@ -9,7 +9,7 @@
       </n-radio-button>
     </n-radio-group>
   </n-space>
-  <div class="posts-wrapper" v-if="posts?.length">
+  <div class="posts-wrapper" v-if="posts?.length && !loading">
     <PostForm v-if="isLoggedIn && !id" @getPosts="getPosts" />
     <div
       class="post"
@@ -70,7 +70,10 @@
             <div class="comment-text">
               Comments
               <n-icon class="comment-icon" size="20">
-                <n-badge color="#18a058" :value="post?.comments.length">
+                <n-badge
+                  color="#18a058"
+                  :value="getCommentCountForVisibility(post?.comments)"
+                >
                   <chatbox-outline />
                 </n-badge>
               </n-icon>
@@ -155,6 +158,12 @@ export default {
     },
     getInitials(user) {
       return getInitials(user);
+    },
+    getCommentCountForVisibility(comments) {
+      return (
+        comments?.filter((comment) => comment?.publicity === this.publicity)
+          .length ?? 0
+      );
     },
   },
   mounted() {

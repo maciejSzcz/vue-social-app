@@ -1,5 +1,5 @@
 <template>
-  <n-divider title-placement="left">Add comment</n-divider>
+  <n-divider v-if="!this.isReply" title-placement="left">Add comment</n-divider>
   <form class="post-form" @submit.prevent="onSubmit">
     <n-input
       v-model:value="content"
@@ -16,7 +16,9 @@
     />
     <div class="action-button-wrapper">
       <n-space justify="flex-end" class="publicity-group">
-        <n-button type="primary" attr-type="submit">Add comment</n-button>
+        <n-button type="primary" attr-type="submit">
+          {{ this.isReply ? "Add reply" : "Add comment" }}
+        </n-button>
       </n-space>
     </div>
   </form>
@@ -26,6 +28,9 @@
 export default {
   name: "CommentForm",
   emits: ["handleCommentSubmit"],
+  props: {
+    isReply: Boolean,
+  },
   data() {
     return {
       content: null,

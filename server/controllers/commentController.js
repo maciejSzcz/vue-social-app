@@ -26,15 +26,44 @@ export default {
     await Promise.all([updatedPost, comment.save()]).catch((err) => {
       return err;
     });
-
-    return true;
   },
   async getCommentsForPostId(postId, publicity) {
     const comments = await Comment.find({
       relatedPost: postId,
       publicity: publicity,
-    }).populate('createdBy');
+    })
+      .populate('createdBy')
+      .populate('replies');
 
     return comments;
+  },
+  async getRepliesForComment(relatedCommentId) {
+    const comments = await Comment.find({
+      relatedComment: relatedCommentId,
+    })
+      .populate('createdBy')
+      .populate('replies');
+
+    return comments;
+  },
+  async addReply(submittedReply) {
+    const parentComment = await Comment.findOne({
+      _id: submittedReply.relatedCommentId,
+    });
+    const user = await User.findOne({ _id: submittedReply.author });
+
+    const reply = new Comment({
+      content: submittedReply.content,
+      createdBy: user,
+      relatedComment: parentComment,
+    });
+
+    const updatedComment = parentComment.updateOne({
+      $push: { replies: reply },
+    });
+
+    await Promise.all([updatedComment, reply.save()]).catch((err) => {
+      return err;
+    });
   },
 };

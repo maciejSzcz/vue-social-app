@@ -15,6 +15,16 @@ const CommentSchema = mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Post',
     },
+    relatedComment: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Comment',
+    },
+    replies: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment',
+      },
+    ],
   },
   {
     timestamps: true,

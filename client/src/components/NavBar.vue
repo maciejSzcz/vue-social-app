@@ -49,6 +49,9 @@ export default {
       });
     },
   },
+  created() {
+    console.log("created navbar");
+  },
 };
 </script>
 <style scoped>

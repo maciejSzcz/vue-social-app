@@ -20,8 +20,25 @@ export default (io) => {
       );
     });
 
-    socket.on('disconnect', () => {
-      console.log('user disconnected');
+    socket.on('reply:add', async (reply) => {
+      await commentController.addReply(reply);
+
+      const repliesForComment = await commentController.getRepliesForComment(
+        reply.relatedCommentId
+      );
+
+      io.in(`${reply.relatedCommentId}`).emit(
+        `${reply.relatedCommentId}`,
+        repliesForComment
+      );
+    });
+
+    socket.on('reply:get', async (reply) => {
+      const repliesForComment = await commentController.getRepliesForComment(
+        reply.relatedCommentId
+      );
+
+      socket.emit(`${reply.relatedCommentId}`, repliesForComment);
     });
   });
 };

@@ -6,7 +6,7 @@ import naive from "naive-ui";
 import Axios from "axios";
 import linkify from "vue-linkify";
 
-const token = sessionStorage.getItem("token");
+const token = localStorage.getItem("token");
 
 Axios.defaults.baseURL =
   process.env.VUE_APP_BACKEND_PATH ?? "https://localhost:8081/api";

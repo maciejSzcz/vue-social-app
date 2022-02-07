@@ -23,17 +23,35 @@
         v-html="comment?.content"
         v-linkified:options="{ className: 'customLink' }"
       />
-      <n-button @click="replyFormVisible = !replyFormVisible"> Reply </n-button>
-      <n-badge color="#18a058" :value="this.replies?.length">
-        <n-button icon-placement="right" @click="showReplies">
-          Show replies
-          <template #icon>
-            <n-icon class="comment-icon" size="20">
-              <chatbox-outline />
-            </n-icon>
-          </template>
-        </n-button>
-      </n-badge>
+      <div class="action-buttons-wrapper">
+        <n-badge color="#18a058" :value="this.replies?.length">
+          <n-button
+            @click="showReplies"
+            :disabled="!this.replies?.length"
+            icon-placement="right"
+          >
+            Show replies
+            <template #icon>
+              <n-icon class="comment-icon" size="20">
+                <chatbox-outline />
+              </n-icon>
+            </template>
+          </n-button>
+        </n-badge>
+        <n-badge class="reply-button">
+          <n-button
+            icon-placement="right"
+            @click="replyFormVisible = !replyFormVisible"
+          >
+            Reply
+            <template #icon>
+              <n-icon class="comment-icon" size="20">
+                <arrow-redo-outline />
+              </n-icon>
+            </template>
+          </n-button>
+        </n-badge>
+      </div>
       <n-collapse-transition :show="replyFormVisible">
         <CommentForm :isReply="true" @handleCommentSubmit="handleReplySubmit" />
       </n-collapse-transition>
@@ -55,13 +73,14 @@ import getInitials from "@/utils/getInitials";
 import { mapGetters } from "vuex";
 import SocketService from "@/services/SocketService";
 import CommentForm from "@/components/CommentForm.vue";
-import { ChatboxOutline } from "@vicons/ionicons5";
+import { ChatboxOutline, ArrowRedoOutline } from "@vicons/ionicons5";
 
 export default {
   name: "Comment",
   components: {
     CommentForm,
     ChatboxOutline,
+    ArrowRedoOutline,
   },
   props: {
     comment: Object,
@@ -144,5 +163,13 @@ a {
 
 .comment-content :deep(.customLink) {
   color: #42b983;
+}
+
+.action-buttons-wrapper {
+  margin: 1rem 0.2rem;
+}
+
+.reply-button {
+  margin-left: 1rem;
 }
 </style>

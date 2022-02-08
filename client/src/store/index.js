@@ -4,7 +4,7 @@ import { createStore } from "vuex";
 export default createStore({
   state: {
     status: "",
-    token: localStorage.getItem("token") || "",
+    token: sessionStorage.getItem("token") || "",
     user: {},
   },
   mutations: {
@@ -44,13 +44,13 @@ export default createStore({
           const token = resp.data.token;
           const user = resp.data.user;
 
-          localStorage.setItem("token", token);
+          sessionStorage.setItem("token", token);
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
           commit("AUTH_SUCCESS", { token: token, user: user });
         })
         .catch((err) => {
           commit("AUTH_FAILURE");
-          localStorage.removeItem("token");
+          sessionStorage.removeItem("token");
           throw err;
         });
     },
@@ -61,19 +61,19 @@ export default createStore({
           const token = resp.data.token;
           const user = resp.data.user;
 
-          localStorage.setItem("token", token);
+          sessionStorage.setItem("token", token);
           axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
           commit("AUTH_SUCCESS", { token: token, user: user });
         })
         .catch((err) => {
           commit("AUTH_FAILURE");
-          localStorage.removeItem("token");
+          sessionStorage.removeItem("token");
           throw err;
         });
     },
     logout({ commit }) {
       commit("LOGOUT");
-      localStorage.removeItem("token");
+      sessionStorage.removeItem("token");
       delete axios.defaults.headers.common["Authorization"];
     },
     getUser({ commit }) {
@@ -90,7 +90,7 @@ export default createStore({
         })
         .catch(() => {
           commit("AUTH_FAILURE");
-          localStorage.removeItem("token");
+          sessionStorage.removeItem("token");
           delete axios.defaults.headers.common["Authorization"];
         });
     },

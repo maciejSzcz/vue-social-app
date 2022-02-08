@@ -19,11 +19,23 @@ export default (io) => ({
         .send({ message: 'Error occurred while creating post ', err });
     });
 
+    if (publicity === 'privatePosts') {
+      const friendsList = data[1].toObject().createdBy.friends;
+
+      for (const friend of friendsList) {
+        io.in(`${friend}:${publicity}Posts`).emit(
+          `${friend}:${publicity}Posts`,
+          data[1]
+        );
+      }
+    } else {
+      io.in(publicity).emit(publicity, data[1]);
+    }
+
     return res.status(201).send({ data: data[1] });
   },
 
   async findPostsForUser(req, res, next) {
-    console.log(io.sockets);
     if (res.locals.isFriends || req.user.id === req.params.id) {
       const posts = await Post.find({ createdBy: req.params.id }).populate(
         'createdBy'
@@ -130,10 +142,14 @@ export default (io) => ({
       },
     ]);
 
-    const populatedPosts = await Post.populate(posts, {
-      path: 'createdBy',
-      path: 'comments',
-    });
+    const populatedPosts = await Post.populate(posts, [
+      {
+        path: 'createdBy',
+      },
+      {
+        path: 'comments',
+      },
+    ]);
 
     return res.status(200).send({ data: populatedPosts });
   },

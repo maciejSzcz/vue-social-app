@@ -113,6 +113,7 @@ import { parseISO } from "date-fns";
 import PostForm from "@/components/PostForm";
 import getInitials from "@/utils/getInitials";
 import { ChatboxOutline } from "@vicons/ionicons5";
+import SocketService from "@/services/SocketService";
 
 export default {
   name: "Posts",
@@ -128,11 +129,13 @@ export default {
     return {
       posts: null,
       loading: false,
+      connected: false,
+      socket: null,
       publicity: this.visibility ? `${this.visibility}Posts` : "publicPosts",
     };
   },
   computed: {
-    ...mapGetters(["isUserPresent", "isLoggedIn"]),
+    ...mapGetters(["isUserPresent", "isLoggedIn", "userId"]),
   },
   methods: {
     parseISO(timeStamp) {
@@ -186,6 +189,44 @@ export default {
         });
       },
     };
+  },
+  created() {
+    if (this.isLoggedIn) {
+      SocketService.setupSocketConnection();
+      this.socket = SocketService.getSocket();
+
+      this.socket.on("error", () => {
+        this.displayError("Unexpected connection error");
+      });
+
+      this.socket.on("connect", () => {
+        this.connected = true;
+        this.socket.emit("join", `${this.userId}:private`);
+        this.socket.emit("join", "publicPosts");
+        this.socket.emit("join", "general");
+      });
+
+      if (this.publicity === "privatePosts") {
+        this.socket.on(`${this.userId}:privatePosts`, (post) => {
+          this.posts = [post, ...this.posts];
+        });
+      } else {
+        this.socket.on("publicPosts", (post) => {
+          this.posts = [post, ...this.posts];
+        });
+      }
+
+      this.socket.on("general", (post) => {
+        this.posts = [post, ...this.posts];
+      });
+
+      this.socket.on("disconnect", () => {
+        this.connected = false;
+      });
+    }
+  },
+  beforeUnmount() {
+    SocketService.disconnect();
   },
 };
 </script>

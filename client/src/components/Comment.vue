@@ -30,7 +30,7 @@
             :disabled="!this.replies?.length"
             icon-placement="right"
           >
-            Show replies
+            {{ repliesVisible ? "Hide replies" : "Show replies" }}
             <template #icon>
               <n-icon class="comment-icon" size="20">
                 <chatbox-outline />

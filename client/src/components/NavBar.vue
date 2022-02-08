@@ -5,7 +5,7 @@
         <router-link to="/">
           <n-avatar class="avatar">MW</n-avatar>
         </router-link>
-        <n-badge :value="currentUser?.friendsRequest?.length" :max="5">
+        <n-badge :value="friendsRequestCount">
           <router-link class="user-link" to="/userList">
             <n-button>Users</n-button>
           </router-link>
@@ -36,11 +36,20 @@
 </template>
 <script>
 import { mapGetters } from "vuex";
+import { useMessage } from "naive-ui";
+import SocketService from "@/services/SocketService";
 
 export default {
   name: "NavBar",
+  data() {
+    return {
+      friendsRequestCount: this.currentUser?.friendsRequest?.length,
+      socket: null,
+      connected: false,
+    };
+  },
   computed: {
-    ...mapGetters(["isLoggedIn", "currentUser"]),
+    ...mapGetters(["isLoggedIn", "currentUser", "userId"]),
   },
   methods: {
     logout() {
@@ -49,8 +58,48 @@ export default {
       });
     },
   },
+  setup() {
+    const message = useMessage();
+    return {
+      displayError(err) {
+        message.error(err, {
+          duration: 5000,
+        });
+      },
+    };
+  },
   created() {
-    console.log("created navbar");
+    if (this.isLoggedIn) {
+      SocketService.setupSocketConnection();
+      this.socket = SocketService.getSocket();
+
+      this.socket.on("error", () => {
+        this.displayError("Unexpected connection error");
+      });
+
+      this.socket.on("connect", () => {
+        this.connected = true;
+        this.socket.emit("join", `friendsRequests:${this.userId}`);
+      });
+
+      this.socket.on(`friendsRequests:${this.userId}`, (value) => {
+        const currentCount = this.friendsRequestCount ?? 0;
+        if (currentCount + value >= 0) {
+          this.friendsRequestCount = currentCount + value;
+        }
+      });
+
+      this.socket.on("connect", () => {
+        this.connected = true;
+      });
+
+      this.socket.on("disconnect", () => {
+        this.connected = false;
+      });
+    }
+  },
+  beforeUnmount() {
+    SocketService.disconnect();
   },
 };
 </script>

@@ -1,6 +1,6 @@
 import User from '../models/User.js';
 
-export default {
+export default (io) => ({
   async findAll(req, res) {
     const { page = 1, limit = 3, search } = req.query;
     const query = {
@@ -180,6 +180,11 @@ export default {
           .send({ message: 'Error occurred while adding friend ', err });
       });
 
+      io.in(`friendsRequests:${req.params.id}`).emit(
+        `friendsRequests:${req.params.id}`,
+        1
+      );
+
       return res.status(201).send({ data: { savedUser, savedOtherUser } });
     }
 
@@ -194,6 +199,11 @@ export default {
           err,
         });
       }
+
+      io.in(`friendsRequests:${req.params.id}`).emit(
+        `friendsRequests:${req.params.id}`,
+        1
+      );
 
       return res
         .status(201)
@@ -229,6 +239,11 @@ export default {
         .send({ message: 'Error occurred while removing friend ', err });
     });
 
+    io.in(`friendsRequests:${req.params.id}`).emit(
+      `friendsRequests:${req.params.id}`,
+      -1
+    );
+
     return res.status(201).send({ data: { savedUser, savedOtherUser } });
   },
-};
+});

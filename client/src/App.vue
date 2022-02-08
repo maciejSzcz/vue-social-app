@@ -7,6 +7,7 @@
             <n-spin size="large" />
           </n-space>
           <router-view v-else />
+          <Messenger v-if="isLoggedIn" />
         </n-dialog-provider>
       </n-notification-provider>
     </n-message-provider>
@@ -21,6 +22,7 @@ import {
   NLoadingBarProvider,
 } from "naive-ui";
 import { mapGetters } from "vuex";
+import Messenger from "@/components/Messenger.vue";
 
 export default {
   name: "App",
@@ -29,6 +31,7 @@ export default {
     NDialogProvider,
     NNotificationProvider,
     NLoadingBarProvider,
+    Messenger,
   },
   computed: {
     ...mapGetters(["isUserPresent", "isLoggedIn"]),

@@ -15,11 +15,9 @@ import authSocket from './middlewares/authSocket.js';
 import { Server } from 'socket.io';
 import socketListener from './listeners/socketListener.js';
 import history from 'connect-history-api-fallback';
-// Connect to database
 import dbConfig from './config/database.js';
 import mongoose from 'mongoose';
 
-// Configure passport
 passport();
 
 mongoose.connect(dbConfig.mongoUrl, dbConfig.settings);
@@ -62,7 +60,7 @@ socketListener(io);
 
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/api/auth', auth());
-app.use('/api/users', users());
+app.use('/api/users', users(io));
 app.use('/api/posts', posts(io));
 
 server.listen(config.server.port, () => {

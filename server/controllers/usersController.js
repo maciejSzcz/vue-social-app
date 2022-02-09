@@ -137,6 +137,8 @@ export default (io) => ({
       return next();
     }
 
+    const currentUserObject = currentUser.toObject();
+
     const currentUserInOtherUserFriendRequestList = await User.findOne({
       _id: req.params.id,
       friendsRequest: req.user.id,
@@ -182,7 +184,10 @@ export default (io) => ({
 
       io.in(`friendsRequests:${req.params.id}`).emit(
         `friendsRequests:${req.params.id}`,
-        1
+        {
+          message: `${currentUserObject.first_name} ${currentUserObject.last_name} has accepted your friends request`,
+          counter: 1,
+        }
       );
 
       return res.status(201).send({ data: { savedUser, savedOtherUser } });
@@ -202,7 +207,10 @@ export default (io) => ({
 
       io.in(`friendsRequests:${req.params.id}`).emit(
         `friendsRequests:${req.params.id}`,
-        1
+        {
+          message: `${currentUserObject.first_name} ${currentUserObject.last_name} has sent you a friend request`,
+          counter: 1,
+        }
       );
 
       return res
@@ -223,6 +231,8 @@ export default (io) => ({
       return next();
     }
 
+    const currentUserObject = user.toObject();
+
     const updatedUser = user.updateOne({
       $pull: { friends: req.params.id, friendsRequest: req.params.id },
     });
@@ -241,9 +251,37 @@ export default (io) => ({
 
     io.in(`friendsRequests:${req.params.id}`).emit(
       `friendsRequests:${req.params.id}`,
-      -1
+      {
+        message: `${currentUserObject.first_name} ${currentUserObject.last_name} has removed you from his friends list`,
+        counter: -1,
+      }
     );
 
     return res.status(201).send({ data: { savedUser, savedOtherUser } });
+  },
+
+  async findAllFriends(req, res, next) {
+    const { page = 1, limit = 10, search } = req.query;
+    const query = {
+      friends: { $in: req.user.id },
+      $or: [
+        { first_name: new RegExp(search) },
+        { last_name: new RegExp(search) },
+      ],
+    };
+
+    const usersPaginated = await User.paginate(
+      search
+        ? query
+        : {
+            friends: { $in: req.user.id },
+          },
+      {
+        page,
+        limit,
+      }
+    );
+
+    return res.status(200).send({ data: usersPaginated.docs, usersPaginated });
   },
 });

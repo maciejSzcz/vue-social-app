@@ -9,11 +9,13 @@ export default (io) => {
   const usersController = _usersController(io);
 
   api.get('/', catchAsync(usersController.findAll));
+
   api.get(
     '/authorized',
     jwtAuth,
     catchAsync(usersController.findAllAuthorized)
   );
+  api.get('/friends', jwtAuth, catchAsync(usersController.findAllFriends));
 
   api.get('/:id/public', catchAsync(usersController.findById));
 

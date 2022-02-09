@@ -5,6 +5,8 @@ import fs from 'fs';
 import path from 'path';
 import https from 'https';
 import cors from 'cors';
+import mongoose from 'mongoose';
+import { Server } from 'socket.io';
 import bodyParser from 'body-parser';
 import config from './config/config.js';
 import auth from './routes/auth.js';
@@ -12,11 +14,10 @@ import users from './routes/users.js';
 import posts from './routes/posts.js';
 import passport from './config/passport.js';
 import authSocket from './middlewares/authSocket.js';
-import { Server } from 'socket.io';
-import socketListener from './listeners/socketListener.js';
+import commentListener from './listeners/commentListener.js';
 import history from 'connect-history-api-fallback';
 import dbConfig from './config/database.js';
-import mongoose from 'mongoose';
+import messagesListener from './listeners/messagesListener.js';
 
 passport();
 
@@ -56,7 +57,8 @@ app.use(history());
 
 io.use(authSocket());
 
-socketListener(io);
+commentListener(io);
+messagesListener(io);
 
 app.use(express.static(path.join(__dirname, 'dist')));
 app.use('/api/auth', auth());

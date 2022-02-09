@@ -32,6 +32,12 @@ const UserSchema = mongoose.Schema(
         ref: 'Post',
       },
     ],
+    messages: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Message',
+      },
+    ],
   },
   {
     timestamps: true,

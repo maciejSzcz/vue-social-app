@@ -3,6 +3,7 @@
   <div class="home">
     <Posts />
   </div>
+  <Messenger v-if="isLoggedIn" />
 </template>
 
 <script>

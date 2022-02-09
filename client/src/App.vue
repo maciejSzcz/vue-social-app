@@ -7,7 +7,7 @@
             <n-spin size="large" />
           </n-space>
           <router-view v-else />
-          <Messenger v-if="isLoggedIn" />
+          <UnreadMessageCounter v-if="isLoggedIn && !isMessengerView" />
         </n-dialog-provider>
       </n-notification-provider>
     </n-message-provider>
@@ -22,7 +22,7 @@ import {
   NLoadingBarProvider,
 } from "naive-ui";
 import { mapGetters } from "vuex";
-import Messenger from "@/components/Messenger.vue";
+import UnreadMessageCounter from "@/components/UnreadMessageCounter.vue";
 
 export default {
   name: "App",
@@ -31,10 +31,13 @@ export default {
     NDialogProvider,
     NNotificationProvider,
     NLoadingBarProvider,
-    Messenger,
+    UnreadMessageCounter,
   },
   computed: {
     ...mapGetters(["isUserPresent", "isLoggedIn"]),
+    isMessengerView() {
+      return this.$route?.name === "Messenger";
+    },
   },
   data() {
     return {

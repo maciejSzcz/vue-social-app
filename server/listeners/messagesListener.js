@@ -2,19 +2,8 @@ import messagesController from '../controllers/messagesController.js';
 
 export default (io) => {
   io.on('connection', (socket) => {
-    const users = [];
-
     socket.on('joinChat', (userId) => {
       socket.join(userId);
-      users.push(userId);
-      console.log('join', users);
-      socket.emit('users', users);
-    });
-
-    socket.on('leaveChat', (userId) => {
-      users.filter((user) => user !== userId);
-      console.log('leave', users);
-      socket.emit('users', users);
     });
 
     socket.on('messages:get', async () => {

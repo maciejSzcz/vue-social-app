@@ -1,50 +1,39 @@
 <template>
   <div class="messaging-wrapper">
     <n-card>
-      <p>Witam</p>
+      <router-link to="/messenger">
+        <n-button type="primary">
+          {{
+            this.unreadMessagesCount > 0
+              ? `You have ${this.unreadMessagesCount} unread messages`
+              : "Messenger"
+          }}
+        </n-button>
+      </router-link>
     </n-card>
   </div>
 </template>
 
 <script>
-import getInitials from "@/utils/getInitials";
 import { mapGetters } from "vuex";
-import { useMessage } from "naive-ui";
 import SocketService from "@/services/SocketService";
 
 export default {
-  name: "Comment",
-
-  props: {
-    comment: Object,
-  },
+  name: "UnreadMessageCounter",
   computed: {
     ...mapGetters(["userId"]),
+    unreadMessagesCount() {
+      return (
+        this.messages?.filter((message) => message?.viewed === "false")
+          ?.length ?? 0
+      );
+    },
   },
   data() {
     return {
-      replies: this.comment?.replies,
+      messages: null,
       connected: false,
       socket: null,
-      repliesVisible: false,
-      replyFormVisible: false,
-    };
-  },
-  methods: {
-    getInitials(_post) {
-      return getInitials(_post);
-    },
-    async showReplies() {},
-    async handleReplySubmit() {},
-  },
-  setup() {
-    const message = useMessage();
-    return {
-      displayError(err) {
-        message.error(err, {
-          duration: 5000,
-        });
-      },
     };
   },
   created() {
@@ -57,6 +46,11 @@ export default {
 
     this.socket.on("connect", () => {
       this.connected = true;
+      this.socket.emit("messages:get");
+    });
+
+    this.socket.on(`messages:${this.userId}`, ({ messages }) => {
+      this.messages = messages;
     });
 
     this.socket.on("disconnect", () => {
@@ -73,5 +67,9 @@ export default {
   position: fixed;
   bottom: 1em;
   right: 1em;
+}
+
+a {
+  color: #42b983;
 }
 </style>

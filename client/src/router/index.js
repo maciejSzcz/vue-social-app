@@ -6,6 +6,7 @@ import Register from "@/views/Register.vue";
 import UserList from "@/views/UserList.vue";
 import User from "@/views/User.vue";
 import Post from "@/views/Post.vue";
+import Messenger from "@/views/Messenger.vue";
 import store from "@/store/index.js";
 
 const routes = [
@@ -28,6 +29,14 @@ const routes = [
     path: "/userList",
     name: "UserList",
     component: UserList,
+  },
+  {
+    path: "/messenger",
+    name: "Messenger",
+    component: Messenger,
+    meta: {
+      requiresAuth: true,
+    },
   },
   {
     path: "/user/:id",

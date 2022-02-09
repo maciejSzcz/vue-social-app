@@ -66,6 +66,11 @@ export default {
           duration: 5000,
         });
       },
+      displayNotification(value) {
+        message.info(value, {
+          duration: 5000,
+        });
+      },
     };
   },
   created() {
@@ -82,12 +87,16 @@ export default {
         this.socket.emit("join", `friendsRequests:${this.userId}`);
       });
 
-      this.socket.on(`friendsRequests:${this.userId}`, (value) => {
-        const currentCount = this.friendsRequestCount ?? 0;
-        if (currentCount + value >= 0) {
-          this.friendsRequestCount = currentCount + value;
+      this.socket.on(
+        `friendsRequests:${this.userId}`,
+        ({ message, counter }) => {
+          const currentCount = this.friendsRequestCount ?? 0;
+          if (currentCount + counter >= 0) {
+            this.friendsRequestCount = currentCount + counter;
+          }
+          this.displayNotification(message);
         }
-      });
+      );
 
       this.socket.on("connect", () => {
         this.connected = true;

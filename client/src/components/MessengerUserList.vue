@@ -16,7 +16,7 @@
   >
     <div class="user" v-for="user in users" :key="user?._id">
       <n-card>
-        <n-space justify="space-between">
+        <n-space justify="space-between" :vertical="this.windowWidth < 1400">
           <n-space>
             <n-badge dot color="green" :show="this.getUserStatus(user?._id)">
               <n-avatar class="avatar">
@@ -28,7 +28,7 @@
               {{ user?.last_name }}
             </router-link>
           </n-space>
-          <n-space>
+          <n-space justify="center">
             <n-button
               @click="() => emitRecipientId(user?._id)"
               icon-placement="right"
@@ -85,6 +85,7 @@ export default {
       limit: 5,
       pageCount: 1,
       debounce: null,
+      windowWidth: window.innerWidth,
     };
   },
   computed: {

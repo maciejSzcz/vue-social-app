@@ -8,7 +8,12 @@
       />
     </n-card>
     <n-card class="messenger-current-chat">
-      <Chat :recipientId="recipientId" />
+      <Chat :recipientId="recipientId" v-if="recipientId" />
+      <n-empty
+        class="empty"
+        description="Select a user to start a chat"
+        v-else
+      />
     </n-card>
   </div>
 </template>
@@ -54,7 +59,6 @@ export default {
 
     this.socket.on("connect", () => {
       this.connected = true;
-      this.socket.emit("joinChat", this.userId);
     });
 
     this.socket.on("disconnect", () => {
@@ -80,5 +84,13 @@ export default {
 .messenger-current-chat {
   flex: 3;
   margin: 1rem;
+}
+
+.empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
 }
 </style>

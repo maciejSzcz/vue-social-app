@@ -2,13 +2,22 @@ import messagesController from '../controllers/messagesController.js';
 
 export default (io) => {
   io.on('connection', (socket) => {
-    socket.on('joinChat', (userId) => {
-      socket.join(userId);
+    socket.on('joinChat', async ({ currentUserId, recipientId }) => {
+      socket.join(`chat:${currentUserId}`);
+
+      const messagesBetweenUsers =
+        await messagesController.getMessagesBetweenUsers(
+          currentUserId,
+          recipientId
+        );
+
+      io.in(`chat:${currentUserId}`).emit(
+        `initialMessages:${currentUserId}`,
+        messagesBetweenUsers
+      );
     });
 
-    socket.on('messages:get', async () => {
-      const currentUserId = socket.request.user._id;
-
+    socket.on('messages:get', async (currentUserId) => {
       const messagesForUser = await messagesController.getMessagesForUser(
         currentUserId
       );
@@ -17,16 +26,24 @@ export default (io) => {
     });
 
     socket.on('messages:send', async (message) => {
-      const { recipientId } = message;
-      const currentUserId = socket.request.user._id;
+      const { recipientId, currentUserId } = message;
 
       await messagesController.addMessage(message, currentUserId);
 
-      const messagesForRecipient = await messagesController.getMessagesForUser(
-        recipientId
-      );
+      const messagesBetweenUsers =
+        await messagesController.getMessagesBetweenUsers(
+          currentUserId,
+          recipientId
+        );
 
-      socket.emit(`messages:${recipientId}`, messagesForRecipient);
+      io.in(`chat:${recipientId}`).emit(
+        `messageFrom:${currentUserId}`,
+        messagesBetweenUsers
+      );
+      io.in(`chat:${currentUserId}`).emit(
+        `messageFrom:${recipientId}`,
+        messagesBetweenUsers
+      );
     });
   });
 };

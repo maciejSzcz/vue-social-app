@@ -46,7 +46,7 @@ export default {
 
     this.socket.on("connect", () => {
       this.connected = true;
-      this.socket.emit("messages:get");
+      this.socket.emit("messages:get", this.userId);
     });
 
     this.socket.on(`messages:${this.userId}`, ({ messages }) => {

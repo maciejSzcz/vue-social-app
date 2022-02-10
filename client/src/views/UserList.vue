@@ -1,5 +1,5 @@
 <template>
-  <NavBar />
+  <NavBar @userNotification="getUsers" />
   <div class="center">
     <n-input
       v-model:value="search"

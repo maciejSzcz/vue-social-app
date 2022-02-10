@@ -46,8 +46,10 @@ export default {
       friendsRequestCount: this.currentUser?.friendsRequest?.length,
       socket: null,
       connected: false,
+      message: null,
     };
   },
+  emits: ["userNotification"],
   computed: {
     ...mapGetters(["isLoggedIn", "currentUser", "userId"]),
   },
@@ -56,6 +58,15 @@ export default {
       this.$store.dispatch("logout").then(() => {
         this.$router.push("/");
       });
+    },
+  },
+  watch: {
+    message: {
+      handler(prevValue, value) {
+        if (prevValue !== value && prevValue) {
+          this.displayNotification(prevValue);
+        }
+      },
     },
   },
   setup() {
@@ -94,7 +105,8 @@ export default {
           if (currentCount + counter >= 0) {
             this.friendsRequestCount = currentCount + counter;
           }
-          this.displayNotification(message);
+          this.message = message;
+          this.$emit("userNotification");
         }
       );
 

@@ -20,7 +20,6 @@
 
 <script>
 import { mapGetters } from "vuex";
-import SocketService from "@/services/SocketService";
 import MessengerUserList from "@/components/MessengerUserList";
 import NavBar from "@/components/NavBar.vue";
 import Chat from "@/components/Chat";
@@ -37,9 +36,6 @@ export default {
   },
   data() {
     return {
-      messages: null,
-      connected: false,
-      socket: null,
       recipientId: null,
       activeUsers: [],
     };
@@ -48,25 +44,6 @@ export default {
     setRecipientId(recipientId) {
       this.recipientId = recipientId;
     },
-  },
-  created() {
-    SocketService.setupSocketConnection();
-    this.socket = SocketService.getSocket();
-
-    this.socket.on("error", () => {
-      this.displayError("Unexpected connection error");
-    });
-
-    this.socket.on("connect", () => {
-      this.connected = true;
-    });
-
-    this.socket.on("disconnect", () => {
-      this.connected = false;
-    });
-  },
-  beforeUnmount() {
-    SocketService.disconnect();
   },
 };
 </script>

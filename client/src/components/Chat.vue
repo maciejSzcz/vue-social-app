@@ -1,11 +1,14 @@
 <template>
   <div class="chat-wrapper">
-    <div class="messages-list">
+    <div class="messages-list" v-if="this.messages?.length > 0">
       <ChatMessage
         v-for="message in this.messages"
         :key="message?._id"
         :message="message"
       />
+    </div>
+    <div class="messages-list" v-else>
+      <n-empty class="empty" description="No messages with user found" />
     </div>
     <div class="message-form-wrapper">
       <form class="message-form" @submit.prevent="sendMessage">
@@ -76,6 +79,10 @@ export default {
         this.socket.on(`messageFrom:${this.recipientId}`, (messages) => {
           this.messages = messages;
         });
+        this.socket.emit("messages:read", {
+          currentUserId: this.userId,
+          recipientId: this.recipientId,
+        });
       }
     },
   },
@@ -89,15 +96,14 @@ export default {
 
     this.socket.on("connect", () => {
       this.connected = true;
+      this.socket.emit("joinChat", {
+        currentUserId: this.userId,
+        recipientId: this.recipientId,
+      });
     });
 
     this.socket.on(`messageFrom:${this.userId}`, (messages) => {
       this.messages = messages;
-    });
-
-    this.socket.emit("joinChat", {
-      currentUserId: this.userId,
-      recipientId: this.recipientId,
     });
 
     this.socket.on(`initialMessages:${this.userId}`, (messages) => {
@@ -145,5 +151,14 @@ export default {
   justify-content: center;
   align-items: center;
   padding-left: 1rem;
+}
+
+.empty {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  margin-top: 12rem;
 }
 </style>

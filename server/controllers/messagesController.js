@@ -21,6 +21,19 @@ export default {
 
     return messages;
   },
+  async markAllMessagesFromUserAsRead(user1, user2) {
+    const messages = await Message.updateMany(
+      {
+        createdBy: user2,
+        recipient: user1,
+      },
+      {
+        $set: { viewed: true },
+      }
+    );
+
+    return messages;
+  },
   async addMessage({ content, recipientId }, currentUserId) {
     const recipient = await User.findOne({ _id: recipientId });
     const sender = await User.findOne({ _id: currentUserId });

@@ -24,8 +24,10 @@ export default {
     ...mapGetters(["userId"]),
     unreadMessagesCount() {
       return (
-        this.messages?.filter((message) => message?.viewed === "false")
-          ?.length ?? 0
+        this.messages?.filter(
+          (message) =>
+            message?.viewed === false && message.createdBy !== this.userId
+        )?.length ?? 0
       );
     },
   },

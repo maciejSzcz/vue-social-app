@@ -4,7 +4,6 @@ export default (io) => {
   io.on('connection', (socket) => {
     socket.on('joinChat', async ({ currentUserId, recipientId }) => {
       socket.join(`chat:${currentUserId}`);
-
       const messagesBetweenUsers =
         await messagesController.getMessagesBetweenUsers(
           currentUserId,
@@ -25,6 +24,13 @@ export default (io) => {
       socket.emit(`messages:${currentUserId}`, messagesForUser);
     });
 
+    socket.on('messages:read', async ({ currentUserId, recipientId }) => {
+      await messagesController.markAllMessagesFromUserAsRead(
+        currentUserId,
+        recipientId
+      );
+    });
+
     socket.on('messages:send', async (message) => {
       const { recipientId, currentUserId } = message;
 
@@ -40,10 +46,13 @@ export default (io) => {
         `messageFrom:${currentUserId}`,
         messagesBetweenUsers
       );
-      io.in(`chat:${currentUserId}`).emit(
-        `messageFrom:${recipientId}`,
-        messagesBetweenUsers
+      socket.emit(`messageFrom:${currentUserId}`, messagesBetweenUsers);
+
+      const messagesForRecipient = await messagesController.getMessagesForUser(
+        recipientId
       );
+
+      io.emit(`messages:${recipientId}`, messagesForRecipient);
     });
   });
 };

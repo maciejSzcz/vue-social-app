@@ -7,7 +7,7 @@ export default () =>
       secret: process.env.JWT_SECRET,
     },
     (payload, done) => {
-      User.findOne({ id: payload.id }, (err, user) => {
+      User.findOne({ _id: payload.id }, (err, user) => {
         if (err) {
           return done(err);
         }

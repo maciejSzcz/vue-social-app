@@ -3,11 +3,7 @@
     <n-card>
       <router-link to="/messenger">
         <n-button type="primary">
-          {{
-            this.unreadMessagesCount > 0
-              ? `You have ${this.unreadMessagesCount} unread messages`
-              : "Messenger"
-          }}
+          {{ this.unreadMessagesTextMessage }}
         </n-button>
       </router-link>
     </n-card>
@@ -22,13 +18,14 @@ export default {
   name: "UnreadMessageCounter",
   computed: {
     ...mapGetters(["userId"]),
-    unreadMessagesCount() {
-      return (
-        this.messages?.filter(
-          (message) =>
-            message?.viewed === false && message.createdBy !== this.userId
-        )?.length ?? 0
-      );
+    unreadMessagesTextMessage() {
+      const messageCount = this.messages?.length ?? 0;
+      if (messageCount >= 2) {
+        return `You have ${messageCount} unread messages`;
+      } else if (messageCount > 0) {
+        return `You have ${messageCount} unread message`;
+      }
+      return "Messenger";
     },
   },
   data() {
@@ -48,10 +45,10 @@ export default {
 
     this.socket.on("connect", () => {
       this.connected = true;
-      this.socket.emit("messages:get", this.userId);
+      this.socket.emit("messages:get");
     });
 
-    this.socket.on(`messages:${this.userId}`, ({ messages }) => {
+    this.socket.on(`messages:${this.userId}`, (messages) => {
       this.messages = messages;
     });
 

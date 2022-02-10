@@ -18,7 +18,9 @@
       <n-card>
         <n-space justify="space-between" :vertical="this.windowWidth < 1400">
           <n-space>
-            <n-badge dot color="green" :show="this.getUserStatus(user?._id)">
+            <n-badge
+              :value="unreadMessagesCountGroupedByCreator?.[user?._id] ?? 0"
+            >
               <n-avatar class="avatar">
                 {{ getInitials(user) }}
               </n-avatar>
@@ -61,12 +63,13 @@
 import axios from "axios";
 import { mapGetters } from "vuex";
 import { useMessage } from "naive-ui";
-import getInitials from "@/utils/getInitials";
-import Loader from "@/components/Loader.vue";
 import { ArrowRedoOutline } from "@vicons/ionicons5";
+import getInitials from "@/utils/getInitials";
+import Loader from "@/components/Loader";
+import SocketService from "@/services/SocketService";
 
 export default {
-  name: "UserList",
+  name: "MessengerUserList",
   components: {
     Loader,
     ArrowRedoOutline,
@@ -86,10 +89,21 @@ export default {
       pageCount: 1,
       debounce: null,
       windowWidth: window.innerWidth,
+      messages: null,
+      connected: false,
+      socket: null,
     };
   },
   computed: {
     ...mapGetters(["userId", "currentUser"]),
+    unreadMessagesCountGroupedByCreator() {
+      return this.messages?.reduce((groups, { createdBy }) => {
+        return {
+          ...groups,
+          [createdBy]: groups?.[createdBy] ? groups[createdBy] + 1 : 1,
+        };
+      }, {});
+    },
   },
   methods: {
     async getUsers() {
@@ -159,6 +173,30 @@ export default {
         });
       },
     };
+  },
+  created() {
+    SocketService.setupSocketConnection();
+    this.socket = SocketService.getSocket();
+
+    this.socket.on("error", () => {
+      this.displayError("Unexpected connection error");
+    });
+
+    this.socket.on("connect", () => {
+      this.connected = true;
+      this.socket.emit("messages:get");
+    });
+
+    this.socket.on(`messages:${this.userId}`, (messages) => {
+      this.messages = messages;
+    });
+
+    this.socket.on("disconnect", () => {
+      this.connected = false;
+    });
+  },
+  beforeUnmount() {
+    SocketService.disconnect();
   },
 };
 </script>

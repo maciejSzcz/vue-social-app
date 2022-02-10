@@ -2,13 +2,13 @@ import Message from '../models/Message.js';
 import User from '../models/User.js';
 
 export default {
-  async getMessagesForUser(userId) {
-    const messages = await User.findOne({ _id: userId })
-      .populate('messages')
-      .select('-_id')
-      .select('messages');
+  async getUnreadMessagesForUser(userId) {
+    const unreadMessages = await Message.find({
+      recipient: userId,
+      viewed: false,
+    });
 
-    return messages;
+    return unreadMessages;
   },
   async getMessagesBetweenUsers(user1, user2) {
     const messages = await Message.find({

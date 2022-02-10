@@ -20,6 +20,7 @@
           type="text"
           size="small"
           required
+          :on-focus="markAsRead"
         />
         <div class="action-button-wrapper">
           <n-space justify="flex-end">
@@ -58,30 +59,29 @@ export default {
     };
   },
   methods: {
-    async sendMessage() {
+    sendMessage() {
       if (this.content && this.recipientId) {
         this.socket.emit("messages:send", {
           recipientId: this.recipientId,
           content: this.content,
-          currentUserId: this.userId,
         });
         this.content = null;
       }
+    },
+    markAsRead() {
+      this.socket.emit("messages:read", {
+        recipientId: this.recipientId,
+      });
     },
   },
   watch: {
     recipientId() {
       if (this.recipientId) {
         this.socket.emit("joinChat", {
-          currentUserId: this.userId,
           recipientId: this.recipientId,
         });
         this.socket.on(`messageFrom:${this.recipientId}`, (messages) => {
           this.messages = messages;
-        });
-        this.socket.emit("messages:read", {
-          currentUserId: this.userId,
-          recipientId: this.recipientId,
         });
       }
     },
@@ -97,12 +97,15 @@ export default {
     this.socket.on("connect", () => {
       this.connected = true;
       this.socket.emit("joinChat", {
-        currentUserId: this.userId,
         recipientId: this.recipientId,
       });
     });
 
     this.socket.on(`messageFrom:${this.userId}`, (messages) => {
+      this.messages = messages;
+    });
+
+    this.socket.on(`messageFrom:${this.recipientId}`, (messages) => {
       this.messages = messages;
     });
 

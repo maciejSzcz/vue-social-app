@@ -107,6 +107,7 @@ export default {
           }
           this.message = message;
           this.$emit("userNotification");
+          this.$store.dispatch("getUser");
         }
       );
 

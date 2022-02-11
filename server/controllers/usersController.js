@@ -79,7 +79,11 @@ export default (io) => ({
       limit,
     });
 
-    return res.status(200).send({ data: usersPaginated.docs, usersPaginated });
+    return res.status(200).send({
+      data: usersPaginated.docs,
+      pageCount: usersPaginated.totalPages,
+      page: usersPaginated.page,
+    });
   },
 
   async findById(req, res, next) {

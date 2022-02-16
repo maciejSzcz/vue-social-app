@@ -33,20 +33,7 @@ mongoose.connection.on('open', () => {
 
 const app = express();
 
-const server = https.createServer(
-  {
-    key: fs.readFileSync('./ssl/my.key'),
-    cert: fs.readFileSync('./ssl/my.crt'),
-  },
-  app
-);
-
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL,
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  },
-});
+const io = new Server(app);
 
 const __dirname = path.resolve();
 
@@ -65,6 +52,6 @@ app.use('/api/auth', auth());
 app.use('/api/users', users(io));
 app.use('/api/posts', posts(io));
 
-server.listen(config.server.port, () => {
+app.listen(config.server.port, () => {
   console.log(`Server started on port ${config.server.port}`);
 });

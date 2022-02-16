@@ -1,5 +1,5 @@
 export default {
-  mongoUrl: 'mongodb://localhost:27017/projekt',
+  mongoUrl: process.env.MONGO_URI,
   settings: {
     useNewUrlParser: true,
   },
